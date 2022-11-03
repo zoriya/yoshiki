@@ -4,6 +4,9 @@
 	"main": "src/index.ts",
 	"author": "Zoe Roux <zoe.roux@sdg.moe>",
 	"license": "MIT",
+	"workspaces": [
+		"packages/*"
+	],
 	"prettier": {
 		"useTabs": true,
 		"printWidth": 100,

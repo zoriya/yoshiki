@@ -72,6 +72,28 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@yoshiki/core@workspace:^, @yoshiki/core@workspace:packages/core":
+  version: 0.0.0-use.local
+  resolution: "@yoshiki/core@workspace:packages/core"
+  languageName: unknown
+  linkType: soft
+
+"@yoshiki/native@workspace:packages/native":
+  version: 0.0.0-use.local
+  resolution: "@yoshiki/native@workspace:packages/native"
+  dependencies:
+    "@yoshiki/core": "workspace:^"
+  languageName: unknown
+  linkType: soft
+
+"@yoshiki/react@workspace:packages/react":
+  version: 0.0.0-use.local
+  resolution: "@yoshiki/react@workspace:packages/react"
+  dependencies:
+    "@yoshiki/core": "workspace:^"
+  languageName: unknown
+  linkType: soft
+
 "acorn-jsx@npm:^5.3.2":
   version: 5.3.2
   resolution: "acorn-jsx@npm:5.3.2"
