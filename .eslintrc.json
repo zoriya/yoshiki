@@ -1,0 +1,17 @@
+{
+	"extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"],
+	"plugins": ["header"],
+	"rules": {
+		"header/header": [
+			"error",
+			"line",
+			[
+				"",
+				" Copyright (c) Zoe Roux and contributors. All rights reserved.",
+				" Licensed under the MIT license. See LICENSE file in the project root for details.",
+				""
+			],
+			2
+		]
+	}
+}
