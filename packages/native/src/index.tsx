@@ -7,13 +7,17 @@ import { ViewStyle, TextStyle, ImageStyle } from "react-native";
 import { YoushikiStyle } from "@yoshiki/core";
 
 // TODO: shorhands
-type Properties = ViewStyle | TextStyle | ImageStyle;
-export type CssObject = {
+type EnhancedStyle<Properties> = {
 	[key in keyof Properties]: YoushikiStyle<Properties[key]>;
 };
+export type CssObject = EnhancedStyle<ViewStyle> | EnhancedStyle<TextStyle> | EnhancedStyle<ImageStyle>;
+type Properties = ViewStyle | TextStyle | ImageStyle;
 
-export const css = (css: CssObject) => {
+export const css = (css: CssObject, leftOvers?: { style?: Properties }) => {
+	const { style, ...leftOverProps } = leftOvers ?? {};
+
 	return {
-		style: css as Properties,
+		style: { ...css, ...style } as Properties,
+		...leftOverProps,
 	};
 };

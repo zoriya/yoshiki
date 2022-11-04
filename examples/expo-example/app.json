@@ -26,6 +26,11 @@
 			}
 		},
 		"web": {
+			"build": {
+				"babel": {
+					"include": ["@yoshiki/native", "@yoshiki/core"]
+				}
+			},
 			"favicon": "./assets/favicon.png"
 		}
 	}
