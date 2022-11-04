@@ -1,4 +1,14 @@
 {
 	"name": "@yoshiki/core",
-	"packageManager": "yarn@3.2.4"
+	"version": "1.0.0",
+	"main": "src/index.ts",
+	"types": "src/index.ts",
+	"packageManager": "yarn@3.2.4",
+	"peerDependencies": {
+		"react": "*"
+	},
+	"devDependencies": {
+		"@types/react": "^18.0.24",
+		"typescript": "^4.8.4"
+	}
 }

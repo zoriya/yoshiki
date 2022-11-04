@@ -1,7 +1,19 @@
 {
 	"name": "@yoshiki/native",
+	"version": "1.0.0",
+	"main": "src/index.tsx",
+	"types": "src/index.tsx",
 	"packageManager": "yarn@3.2.4",
 	"dependencies": {
 		"@yoshiki/core": "workspace:^"
+	},
+	"devDependencies": {
+		"@types/react": "^18.0.24",
+		"@types/react-native": "~0.69.1",
+		"typescript": "^4.8.4"
+	},
+	"peerDependencies": {
+		"react": "*",
+		"react-native": "*"
 	}
 }
