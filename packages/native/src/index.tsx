@@ -14,6 +14,6 @@ export type CssObject = {
 
 export const css = (css: CssObject) => {
 	return {
-		styled: {},
+		style: css as Properties,
 	};
 };

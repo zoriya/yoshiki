@@ -3,26 +3,28 @@
 	"version": "1.0.0",
 	"main": "src/app.tsx",
 	"scripts": {
-		"start": "expo start",
+		"dev": "expo start",
 		"android": "expo start --android",
 		"ios": "expo start --ios",
 		"web": "expo start --web"
 	},
 	"dependencies": {
-		"@expo/webpack-config": "^0.17.3",
+		"@expo/html-elements": "^0.2.0",
+		"@expo/webpack-config": "^0.17.0",
+		"@yoshiki/native": "*",
 		"expo": "~46.0.16",
 		"expo-status-bar": "~1.4.0",
 		"react": "18.0.0",
 		"react-dom": "18.0.0",
 		"react-native": "0.69.6",
+		"react-native-svg": "12.3.0",
 		"react-native-web": "~0.18.7"
 	},
 	"devDependencies": {
-		"@babel/core": "^7.12.9",
+		"@babel/core": "^7.19.6",
 		"@types/react": "~18.0.14",
 		"@types/react-native": "~0.69.1",
 		"typescript": "~4.3.5"
 	},
-	"private": true,
-	"packageManager": "yarn@1.22.19"
+	"private": true
 }

@@ -3,9 +3,8 @@
 	"version": "1.0.0",
 	"main": "src/index.tsx",
 	"types": "src/index.tsx",
-	"packageManager": "yarn@3.2.4",
 	"dependencies": {
-		"@yoshiki/core": "workspace:^"
+		"@yoshiki/core": "*"
 	},
 	"devDependencies": {
 		"@types/react": "^18.0.24",
