@@ -18,7 +18,7 @@ const CustomBox = ({ color, ...props }: { color: string }) => {
 
 const BoxWithoutProps = (props: object) => {
 	return (
-		<View {...css({ backgroundColor: "#999999" }, props)}>
+		<View {...css({ backgroundColor: { xs: "00ff00", md: "#ff0000"} }, props)}>
 			<Text>Text inside the box without props</Text>
 		</View>
 	);

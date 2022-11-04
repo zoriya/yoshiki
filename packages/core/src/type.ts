@@ -8,14 +8,20 @@ export type Theme = {
 	spacing: string;
 };
 
+export const breakpoints = {
+	xs: 0,
+	sm: 600,
+	md: 900,
+	lg: 1200,
+	xl: 1600,
+}
+
 export type YoushikiStyle<Property> =
 	| Property
 	| ((theme: Theme) => Property)
 	| Breakpoints<Property>;
 
+
 export type Breakpoints<Property> = {
-	sm?: Property;
-	md?: Property;
-	lg?: Property;
-	xl?: Property;
+	[key in keyof (typeof breakpoints)]?: Property;
 };

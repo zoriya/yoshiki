@@ -27,9 +27,7 @@
 		},
 		"web": {
 			"build": {
-				"babel": {
-					"include": ["@yoshiki/native", "@yoshiki/core"]
-				}
+				"bundler": "metro"
 			},
 			"favicon": "./assets/favicon.png"
 		}
