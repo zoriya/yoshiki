@@ -6,9 +6,11 @@
 import { StatusBar } from "expo-status-bar";
 import { Text, View } from "react-native";
 import { registerRootComponent } from "expo";
-import { css } from "@yoshiki/native";
+import { useCss } from "@yoshiki/native";
 
 const CustomBox = ({ color, ...props }: { color: string }) => {
+	const css = useCss();
+
 	return (
 		<View {...css({ backgroundColor: color }, props)}>
 			<Text {...css({ color: "white" })}>Text inside the custom black box.</Text>
@@ -17,14 +19,18 @@ const CustomBox = ({ color, ...props }: { color: string }) => {
 };
 
 const BoxWithoutProps = (props: object) => {
+	const css = useCss();
+
 	return (
-		<View {...css({ backgroundColor: { xs: "00ff00", md: "#ff0000"} }, props)}>
-			<Text>Text inside the box without props</Text>
+		<View {...css({ backgroundColor: { xs: "#00ff00", md: "#ff0000"} }, props)}>
+			<Text>Text inside the box without props (green on small screens, red on bigs)</Text>
 		</View>
 	);
 };
 
 function App() {
+	const css = useCss();
+
 	return (
 		<View
 			{...css({

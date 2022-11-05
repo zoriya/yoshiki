@@ -4,7 +4,7 @@
 //
 
 import { ViewStyle, TextStyle, ImageStyle, useWindowDimensions } from "react-native";
-import { breakpoints, Breakpoints, YoushikiStyle } from "@yoshiki/core";
+import { breakpoints, Breakpoints, Theme, YoushikiStyle } from "@yoshiki/core";
 
 // TODO: shorhands
 type EnhancedStyle<Properties> = {
@@ -23,31 +23,58 @@ const useBreakpoint = (): number => {
 	return idx - 1;
 };
 
-export const css = (css: CssObject, leftOvers?: { style?: Properties }) => {
-	const { style, ...leftOverProps } = leftOvers ?? {};
+export const useTheme = () => {
+	return {} as Theme;
+};
 
-	let breakpoint: number | undefined = undefined;
-	const ret: Properties = Object.fromEntries(
-		Object.entries(css)
-			.map(([key, value]) => {
-				if (typeof value === "object") {
-					if (!breakpoint) breakpoint = useBreakpoint();
+const isBreakpoints = <T,>(value: unknown): value is Breakpoints<T> => {
+	if (typeof value !== "object" || !value) return false;
+	for (const v of Object.keys(value)) {
+		if (!(v in breakpoints)) {
+			return false;
+		}
+	}
+	return true;
+};
 
-					const bpKeys = Object.keys(breakpoints);
-					for (let i = breakpoint; i >= 0; i--) {
-						if (bpKeys[i] in value) {
-							return [key, value[bpKeys[i]]];
-						}
-					}
-					return undefined;
-				}
-				return [key, value];
-			})
-			.filter((x) => x !== undefined),
-	);
+const propertyMapper = <
+	Property extends number | string | boolean | undefined | Property[] | object,
+>(
+	value: Property | Breakpoints<Property> | ((theme: Theme) => Property),
+	{ breakpoint, theme }: { breakpoint: number; theme: Theme },
+): Property | undefined => {
+	if (isBreakpoints<Property>(value)) {
+		const bpKeys = Object.keys(breakpoints) as Array<keyof Breakpoints<Property>>;
+		for (let i = breakpoint; i >= 0; i--) {
+			if (bpKeys[i] in value) {
+				return value[bpKeys[i]];
+			}
+		}
+		return undefined;
+	}
+	if (typeof value === "function") {
+		return value(theme);
+	}
+	return value;
+};
 
-	return {
-		style: { ...ret, ...style },
-		...leftOverProps,
+// TODO: do not use a hook and use a global window width.
+export const useCss = () => {
+	const breakpoint = useBreakpoint();
+	const theme = useTheme();
+
+	return (css: CssObject, leftOvers?: { style?: Properties }) => {
+		const { style, ...leftOverProps } = leftOvers ?? {};
+
+		const ret: Properties = Object.fromEntries(
+			Object.entries(css)
+				.map(([key, value]) => [key, propertyMapper(value, { breakpoint, theme })])
+				.filter(([, value]) => value !== undefined),
+		);
+
+		return {
+			style: { ...ret, ...style },
+			...leftOverProps,
+		};
 	};
 };
