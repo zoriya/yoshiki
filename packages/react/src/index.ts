@@ -4,15 +4,56 @@
 //
 
 import { Properties } from "csstype";
-import { YoushikiStyle } from "@yoshiki/core";
+import { Theme, YoshikiStyle, Breakpoints } from "@yoshiki/core";
+import { useInsertionEffect } from "react";
 
 // TODO: shorthands
 export type CssObject = {
-	[key in keyof Properties]: YoushikiStyle<Properties[key]>;
+	[key in keyof Properties]: YoshikiStyle<Properties[key]>;
 };
 
-export const css = (css: CssObject) => {
+const useTheme = () => {
+	return {} as Theme;
+};
+
+const generateAtomicCss = <Key extends keyof CssObject, Value extends CssObject[Key]>(
+	key: Key,
+	value: Value,
+	{ theme }: { theme: Theme },
+): string => {
+	const cssKey = "toto";
+
+	return `.ys-${key}-${value}: {
+		${cssKey}: ${value};
+	}`;
+};
+
+const dedupProperties = (...classes: string[]) => {
+	return classes.join(" ");
+};
+
+export const useYoshiki = () => {
+	const theme = useTheme();
+	const classes: string[] = [];
+	useInsertionEffect(() => {
+		document.head.insertAdjacentHTML("beforeend", `<style>${classes.join("\n")}</style>`);
+	}, [classes]);
+
 	return {
-		styled: {},
+		css: (
+			css: CssObject /*  | CssObject[] */,
+			{ className, style, ...leftOver }: { className: string; style: Properties },
+		) => {
+			const localStyle = Object.entries(css).map(([key, value]) =>
+				generateAtomicCss(key as keyof CssObject, value, { theme }),
+			);
+			classes.concat(localStyle);
+			return {
+				className: dedupProperties(...localStyle, className),
+				style: style,
+				...leftOver,
+			};
+		},
+		theme,
 	};
 };

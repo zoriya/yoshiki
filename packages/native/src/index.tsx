@@ -4,11 +4,11 @@
 //
 
 import { ViewStyle, TextStyle, ImageStyle, useWindowDimensions } from "react-native";
-import { breakpoints, Breakpoints, Theme, YoushikiStyle } from "@yoshiki/core";
+import { breakpoints, Breakpoints, Theme, YoshikiStyle } from "@yoshiki/core";
 
 // TODO: shorhands
 type EnhancedStyle<Properties> = {
-	[key in keyof Properties]: YoushikiStyle<Properties[key]>;
+	[key in keyof Properties]: YoshikiStyle<Properties[key]>;
 };
 export type CssObject =
 	| EnhancedStyle<ViewStyle>
@@ -66,14 +66,14 @@ export const useCss = () => {
 	return (css: CssObject, leftOvers?: { style?: Properties }) => {
 		const { style, ...leftOverProps } = leftOvers ?? {};
 
-		const ret: Properties = Object.fromEntries(
+		const inline: Properties = Object.fromEntries(
 			Object.entries(css)
 				.map(([key, value]) => [key, propertyMapper(value, { breakpoint, theme })])
 				.filter(([, value]) => value !== undefined),
 		);
 
 		return {
-			style: { ...ret, ...style },
+			style: { ...inline, ...style },
 			...leftOverProps,
 		};
 	};

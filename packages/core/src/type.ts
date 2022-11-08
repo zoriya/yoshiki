@@ -16,7 +16,7 @@ export const breakpoints = {
 	xl: 1600,
 }
 
-export type YoushikiStyle<Property> =
+export type YoshikiStyle<Property> =
 	| Property
 	| ((theme: Theme) => Property)
 	| Breakpoints<Property>;

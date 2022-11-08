@@ -4,7 +4,7 @@
 //
 
 import { StatusBar } from "expo-status-bar";
-import { Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { registerRootComponent } from "expo";
 import { useCss } from "@yoshiki/native";
 
