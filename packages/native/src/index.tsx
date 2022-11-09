@@ -4,7 +4,14 @@
 //
 
 import { ViewStyle, TextStyle, ImageStyle, useWindowDimensions } from "react-native";
-import { breakpoints, Breakpoints, Theme, YoshikiStyle } from "@yoshiki/core";
+import {
+	breakpoints,
+	Breakpoints,
+	Theme,
+	YoshikiStyle,
+	useTheme,
+	isBreakpoints,
+} from "@yoshiki/core";
 
 // TODO: shorhands
 type EnhancedStyle<Properties> = {
@@ -21,20 +28,6 @@ const useBreakpoint = (): number => {
 	const idx = Object.values(breakpoints).findIndex((x) => width <= x);
 	if (idx === -1) return 0;
 	return idx - 1;
-};
-
-export const useTheme = () => {
-	return {} as Theme;
-};
-
-const isBreakpoints = <T,>(value: unknown): value is Breakpoints<T> => {
-	if (typeof value !== "object" || !value) return false;
-	for (const v of Object.keys(value)) {
-		if (!(v in breakpoints)) {
-			return false;
-		}
-	}
-	return true;
 };
 
 const propertyMapper = <

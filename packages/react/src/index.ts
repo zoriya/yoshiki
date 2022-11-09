@@ -4,7 +4,7 @@
 //
 
 import { Properties } from "csstype";
-import { Theme, YoshikiStyle, Breakpoints } from "@yoshiki/core";
+import { Theme, YoshikiStyle, useTheme, breakpoints, isBreakpoints } from "@yoshiki/core";
 import { useInsertionEffect } from "react";
 
 // TODO: shorthands
@@ -12,44 +12,63 @@ export type CssObject = {
 	[key in keyof Properties]: YoshikiStyle<Properties[key]>;
 };
 
-const useTheme = () => {
-	return {} as Theme;
-};
-
-const generateAtomicCss = <Key extends keyof CssObject, Value extends CssObject[Key]>(
-	key: Key,
-	value: Value,
+const generateAtomicCss = <Property extends number | boolean | string | undefined>(
+	key: string,
+	value: YoshikiStyle<Property>,
 	{ theme }: { theme: Theme },
-): string => {
-	const cssKey = "toto";
+): [string, string][] => {
+	const cssKey = key.replace(/[A-Z]/g, "-$&").toLowerCase();
 
-	return `.ys-${key}-${value}: {
-		${cssKey}: ${value};
-	}`;
+	if (typeof value === "function") {
+		value = value(theme);
+	}
+	if (isBreakpoints<Property>(value)) {
+		return Object.entries(value).map(([bp, bpValue]) => {
+			const className = `ys-${bp}_${key}-${bpValue}`;
+			const bpWidth = breakpoints[bp as keyof typeof breakpoints];
+			return [
+				className,
+				`@media (min-width: ${bpWidth}px) { .${className} { ${cssKey}: ${bpValue}; } }`,
+			];
+		});
+	}
+
+	const className = `ys-${key}-${value}`;
+	return [[className, `.${className} { ${cssKey}: ${value}; }`]];
 };
 
-const dedupProperties = (...classes: string[]) => {
-	return classes.join(" ");
+const dedupProperties = (...classes: (string | undefined)[]) => {
+	return classes.filter((x) => x).join(" ");
 };
 
 export const useYoshiki = () => {
 	const theme = useTheme();
-	const classes: string[] = [];
+	let classes: string[] = [];
 	useInsertionEffect(() => {
+		console.log(classes);
 		document.head.insertAdjacentHTML("beforeend", `<style>${classes.join("\n")}</style>`);
 	}, [classes]);
 
 	return {
 		css: (
 			css: CssObject /*  | CssObject[] */,
-			{ className, style, ...leftOver }: { className: string; style: Properties },
+			leftOverProps?: { className?: string; style?: Properties },
 		) => {
-			const localStyle = Object.entries(css).map(([key, value]) =>
-				generateAtomicCss(key as keyof CssObject, value, { theme }),
+			const { className, style, ...leftOver } = leftOverProps ?? {};
+
+			// I'm sad that traverse is not a thing in JS.
+			const [localClassNames, localStyle] = Object.entries(css).reduce<[string[], string[]]>(
+				(acc, [key, value]) => {
+					const n = generateAtomicCss(key, value, { theme });
+					acc[0].push(...n.map((x) => x[0]));
+					acc[1].push(...n.map((x) => x[1]));
+					return acc;
+				},
+				[[], []],
 			);
-			classes.concat(localStyle);
+			classes = classes.concat(localStyle);
 			return {
-				className: dedupProperties(...localStyle, className),
+				className: dedupProperties(...localClassNames, className),
 				style: style,
 				...leftOver,
 			};

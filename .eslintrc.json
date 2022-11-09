@@ -1,6 +1,11 @@
 {
 	"extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"],
 	"plugins": ["header"],
+	"settings": {
+		"next": {
+			"rootDir": "examples/next-example/"
+		}
+	},
 	"rules": {
 		"header/header": [
 			"error",
