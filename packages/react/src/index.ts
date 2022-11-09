@@ -5,7 +5,7 @@
 
 import { Properties } from "csstype";
 import { Theme, YoshikiStyle, useTheme, breakpoints, isBreakpoints } from "@yoshiki/core";
-import { useInsertionEffect } from "react";
+import { CSSProperties, useInsertionEffect } from "react";
 
 // TODO: shorthands
 export type CssObject = {
@@ -58,7 +58,7 @@ export const useYoshiki = () => {
 	return {
 		css: (
 			css: CssObject /*  | CssObject[] */,
-			leftOverProps?: { className?: string; style?: Properties },
+			leftOverProps?: { className?: string; style?: CSSProperties },
 		) => {
 			const { className, style, ...leftOver } = leftOverProps ?? {};
 
@@ -82,3 +82,8 @@ export const useYoshiki = () => {
 		theme,
 	};
 };
+
+export type Stylable = {
+	className?: string,
+	style?: CSSProperties,
+}

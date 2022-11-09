@@ -5,10 +5,10 @@
 
 import Head from "next/head";
 import Image from "next/image";
-import { useYoshiki } from "@yoshiki/react";
+import { useYoshiki, Stylable } from "@yoshiki/react";
 import { ReactNode } from "react";
 
-const Box = ({ children, ...props }: { children?: ReactNode }) => {
+const Box = ({ children, ...props }: { children?: ReactNode } & Stylable) => {
 	const { css } = useYoshiki();
 
 	return (
