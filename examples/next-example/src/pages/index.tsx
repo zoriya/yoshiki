@@ -6,8 +6,20 @@
 import Head from "next/head";
 import Image from "next/image";
 import { useYoshiki } from "@yoshiki/react";
+import { ReactNode } from "react";
 
-export default function Home(props: {}) {
+const Box = ({ children, ...props }: { children?: ReactNode }) => {
+	const { css } = useYoshiki();
+
+	return (
+		<div {...css({ width: "5rem", height: "5rem", background: "red" }, props)}>
+			{children}
+		</div>
+	)
+}
+
+
+export default function Home(props: object) {
 	const { css } = useYoshiki();
 
 	return (
@@ -22,6 +34,9 @@ export default function Home(props: {}) {
 				<h1>
 					Welcome to <a href="https://nextjs.org">Next.js!</a>
 				</h1>
+
+				<Box />
+				<Box {...css({ background: "blue" })} />
 
 				<p>
 					Get started by editing <code>pages/index.tsx</code>

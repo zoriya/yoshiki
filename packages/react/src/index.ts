@@ -38,14 +38,20 @@ const generateAtomicCss = <Property extends number | boolean | string | undefine
 };
 
 const dedupProperties = (...classes: (string | undefined)[]) => {
-	return classes.filter((x) => x).join(" ");
+	const propMap = new Map<string, string>();
+	for (const name of classes) {
+		if (!name) continue;
+		// example ys-background-blue or ys-sm_background-red
+		const key = name.substring(3, name.lastIndexOf('-'))
+		propMap.set(key, name);
+	}
+	return Array.from(propMap.values()).join(" ");
 };
 
 export const useYoshiki = () => {
 	const theme = useTheme();
 	let classes: string[] = [];
 	useInsertionEffect(() => {
-		console.log(classes);
 		document.head.insertAdjacentHTML("beforeend", `<style>${classes.join("\n")}</style>`);
 	}, [classes]);
 
