@@ -3,12 +3,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
+import { StyleRegistryProvider } from "@yoshiki/react/src/registry";
 import type { AppProps } from "next/app";
-import { useLayoutEffect, useState } from "react";
 
-export default function App({ Component, pageProps }: AppProps) {
-	const [show, showApp] = useState(false);
+const App = ({ Component, pageProps }: AppProps) => {
+	return (
+		<StyleRegistryProvider>
+			<Component {...pageProps} />
+		</StyleRegistryProvider>
+	);
+};
 
-	useLayoutEffect(() => showApp(true));
-	return show ? <Component {...pageProps} /> : null;
-}
+export default App;

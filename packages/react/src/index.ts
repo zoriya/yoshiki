@@ -6,6 +6,7 @@
 import { Properties } from "csstype";
 import { Theme, YoshikiStyle, useTheme, breakpoints, isBreakpoints } from "@yoshiki/core";
 import { CSSProperties, useInsertionEffect } from "react";
+import { useStyleRegistry } from "./registry";
 
 // TODO: shorthands
 export type CssObject = {
@@ -50,10 +51,11 @@ const dedupProperties = (...classes: (string | undefined)[]) => {
 
 export const useYoshiki = () => {
 	const theme = useTheme();
-	let classes: string[] = [];
+	const registry = useStyleRegistry();
+
 	useInsertionEffect(() => {
-		document.head.insertAdjacentHTML("beforeend", `<style>${classes.join("\n")}</style>`);
-	}, [classes]);
+		registry.flushToBrowser();
+	}, [registry]);
 
 	return {
 		css: (
@@ -72,7 +74,7 @@ export const useYoshiki = () => {
 				},
 				[[], []],
 			);
-			classes = classes.concat(localStyle);
+			registry.addRules(localClassNames, localStyle);
 			return {
 				className: dedupProperties(...localClassNames, className),
 				style: style,

@@ -8,6 +8,7 @@
 	},
 	"devDependencies": {
 		"@types/react": "^18.0.24",
+		"react": "^18.2.0",
 		"typescript": "^4.8.4"
 	}
 }
