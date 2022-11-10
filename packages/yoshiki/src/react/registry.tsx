@@ -4,8 +4,9 @@
 //
 
 import React, { createContext, ReactNode, useContext } from "react";
+import { YoshikiRegistry } from "~/type";
 
-class StyleRegistry {
+class StyleRegistry implements YoshikiRegistry {
 	private completed: string[] = [];
 	private rules: [string, string][] = [];
 	private styleElement: HTMLStyleElement | null = null;

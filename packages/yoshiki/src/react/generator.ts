@@ -3,15 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import { Properties } from "csstype";
-import { Theme, YoshikiStyle, useTheme, breakpoints, isBreakpoints } from "@yoshiki/core";
+import { useTheme } from "~/theme";
+import { Theme, YoshikiStyle, breakpoints } from "~/type";
+import { isBreakpoints } from "~/utils";
 import { CSSProperties, useInsertionEffect } from "react";
 import { useStyleRegistry } from "./registry";
-
-// TODO: shorthands
-export type CssObject = {
-	[key in keyof Properties]: YoshikiStyle<Properties[key]>;
-};
+import type { CssObject } from ".";
 
 const generateAtomicCss = <Property extends number | boolean | string | undefined>(
 	key: string,
@@ -43,7 +40,7 @@ const dedupProperties = (...classes: (string | undefined)[]) => {
 	for (const name of classes) {
 		if (!name) continue;
 		// example ys-background-blue or ys-sm_background-red
-		const key = name.substring(3, name.lastIndexOf('-'))
+		const key = name.substring(3, name.lastIndexOf("-"));
 		propMap.set(key, name);
 	}
 	return Array.from(propMap.values()).join(" ");
@@ -58,10 +55,7 @@ export const useYoshiki = () => {
 	}, [registry]);
 
 	return {
-		css: (
-			css: CssObject /*  | CssObject[] */,
-			leftOverProps?: { className?: string; style?: CSSProperties },
-		) => {
+		css: (css: CssObject, leftOverProps?: { className?: string; style?: CSSProperties }) => {
 			const { className, style, ...leftOver } = leftOverProps ?? {};
 
 			// I'm sad that traverse is not a thing in JS.
@@ -84,8 +78,3 @@ export const useYoshiki = () => {
 		theme,
 	};
 };
-
-export type Stylable = {
-	className?: string,
-	style?: CSSProperties,
-}

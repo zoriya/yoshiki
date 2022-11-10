@@ -4,14 +4,9 @@
 //
 
 import { ViewStyle, TextStyle, ImageStyle, useWindowDimensions } from "react-native";
-import {
-	breakpoints,
-	Breakpoints,
-	Theme,
-	YoshikiStyle,
-	useTheme,
-	isBreakpoints,
-} from "@yoshiki/core";
+import { breakpoints, Theme, useTheme } from "~/theme";
+import { Breakpoints, YoshikiStyle } from "~/type";
+import { isBreakpoints } from "~/utils";
 
 // TODO: shorhands
 type EnhancedStyle<Properties> = {
@@ -51,23 +46,29 @@ const propertyMapper = <
 	return value;
 };
 
-// TODO: do not use a hook and use a global window width.
-export const useCss = () => {
+export const useYoshiki = () => {
 	const breakpoint = useBreakpoint();
 	const theme = useTheme();
 
-	return (css: CssObject, leftOvers?: { style?: Properties }) => {
-		const { style, ...leftOverProps } = leftOvers ?? {};
+	return {
+		css: (css: CssObject, leftOvers?: { style?: Properties }) => {
+			const { style, ...leftOverProps } = leftOvers ?? {};
 
-		const inline: Properties = Object.fromEntries(
-			Object.entries(css)
-				.map(([key, value]) => [key, propertyMapper(value, { breakpoint, theme })])
-				.filter(([, value]) => value !== undefined),
-		);
+			const inline: Properties = Object.fromEntries(
+				Object.entries(css)
+					.map(([key, value]) => [key, propertyMapper(value, { breakpoint, theme })])
+					.filter(([, value]) => value !== undefined),
+			);
 
-		return {
-			style: { ...inline, ...style },
-			...leftOverProps,
-		};
+			return {
+				style: { ...inline, ...style },
+				...leftOverProps,
+			};
+		},
+		theme: theme,
 	};
 };
+
+export type Stylable = {
+	style: Properties
+}

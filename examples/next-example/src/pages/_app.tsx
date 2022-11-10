@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import { StyleRegistryProvider } from "@yoshiki/react/src/registry";
+import { StyleRegistryProvider } from "yoshiki";
 import type { AppProps } from "next/app";
 
 const App = ({ Component, pageProps }: AppProps) => {

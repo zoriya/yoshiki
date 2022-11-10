@@ -11,7 +11,7 @@
 	"dependencies": {
 		"@expo/html-elements": "^0.2.0",
 		"@expo/webpack-config": "^0.17.0",
-		"@yoshiki/native": "*",
+		"yoshiki": "*",
 		"expo": "~46.0.16",
 		"expo-status-bar": "~1.4.0",
 		"react": "18.0.0",
