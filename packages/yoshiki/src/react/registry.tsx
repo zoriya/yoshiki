@@ -4,9 +4,8 @@
 //
 
 import React, { createContext, ReactNode, useContext } from "react";
-import { YoshikiRegistry } from "~/type";
 
-class StyleRegistry implements YoshikiRegistry {
+class StyleRegistry {
 	private completed: string[] = [];
 	private rules: [string, string][] = [];
 	private styleElement: HTMLStyleElement | null = null;
@@ -32,7 +31,6 @@ class StyleRegistry implements YoshikiRegistry {
 
 	flush(): string[] {
 		const ret = this.rules.filter(([key]) => !this.completed.includes(key));
-		console.log(ret);
 		this.rules = [];
 		this.completed.push(...ret.map(([key]) => key));
 		return ret.map(([, value]) => value);
@@ -75,21 +73,17 @@ class StyleRegistry implements YoshikiRegistry {
 	}
 }
 
-const RegistryContext = createContext<StyleRegistry | null>(null);
+const defaultRegistry = typeof window !== "undefined" ? new StyleRegistry() : null;
+const RegistryContext = createContext<StyleRegistry | null>(defaultRegistry);
 
 export const StyleRegistryProvider = ({
 	registry,
 	children,
 }: {
-	registry?: StyleRegistry;
+	registry: StyleRegistry;
 	children: ReactNode;
 }) => {
-	if (!registry && typeof window === "undefined") return children;
-	return (
-		<RegistryContext.Provider value={registry ?? createStyleRegistry()}>
-			{children}
-		</RegistryContext.Provider>
-	);
+	return <RegistryContext.Provider value={registry}>{children}</RegistryContext.Provider>;
 };
 
 export const useStyleRegistry = () => useContext(RegistryContext) || new StyleRegistry(true);

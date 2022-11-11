@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import { StyleRegistryProvider, createStyleRegistry, useStyleRegistry } from "yoshiki";
+import { StyleRegistryProvider, createStyleRegistry } from "yoshiki";
 import Document, { DocumentContext } from "next/document";
 
 Document.getInitialProps = async (ctx: DocumentContext) => {

@@ -3,9 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import { useTheme } from "~/theme";
-import { Theme, YoshikiStyle, breakpoints } from "~/type";
-import { isBreakpoints } from "~/utils";
+import { Theme, breakpoints, useTheme } from "../theme";
+import { YoshikiStyle } from "../type";
+import { isBreakpoints } from "../utils";
 import { CSSProperties, useInsertionEffect } from "react";
 import { useStyleRegistry } from "./registry";
 import type { CssObject } from ".";

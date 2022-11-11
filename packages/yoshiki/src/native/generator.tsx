@@ -4,9 +4,9 @@
 //
 
 import { ViewStyle, TextStyle, ImageStyle, useWindowDimensions } from "react-native";
-import { breakpoints, Theme, useTheme } from "~/theme";
-import { Breakpoints, YoshikiStyle } from "~/type";
-import { isBreakpoints } from "~/utils";
+import { breakpoints, Theme, useTheme } from "../theme";
+import { Breakpoints, YoshikiStyle } from "../type";
+import { isBreakpoints } from "../utils";
 
 // TODO: shorhands
 type EnhancedStyle<Properties> = {

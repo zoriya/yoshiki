@@ -6,7 +6,7 @@
 import { StatusBar } from "expo-status-bar";
 import { Text, View } from "react-native";
 import { registerRootComponent } from "expo";
-import { Stylable, useYoshiki } from "yoshiki/native";
+import { Stylable, useYoshiki } from "yoshiki";
 
 const CustomBox = ({ color, ...props }: { color: string } & Stylable) => {
 	const { css } = useYoshiki();

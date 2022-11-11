@@ -5,7 +5,7 @@
 
 import { Properties } from "csstype";
 import { CSSProperties } from "react";
-import { YoshikiStyle } from "~/type";
+import { YoshikiStyle } from "../type";
 
 export type CssObject = {
 	[key in keyof Properties]: YoshikiStyle<Properties[key]>;

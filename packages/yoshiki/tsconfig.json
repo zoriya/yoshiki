@@ -16,10 +16,7 @@
 		"isolatedModules": true,
 		"jsx": "react-native",
 		"incremental": true,
-		"baseUrl": ".",
-		"paths": {
-			"~/*": ["src/*"]
-		}
+		"rootDir": "src/"
 	},
 	"include": ["**/*.ts", "**/*.tsx"],
 	"exclude": ["node_modules"]

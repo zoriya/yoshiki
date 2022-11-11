@@ -14,11 +14,3 @@ export type YoshikiStyle<Property> =
 export type Breakpoints<Property> = {
 	[key in keyof (typeof breakpoints)]?: Property;
 };
-
-export interface YoshikiRegistry {
-	/**
-	* Retrieve all newly created styles not yet flushed.
-	* @returns An array of css classes declarations.
-	*/
-	flush(): string[];
-}

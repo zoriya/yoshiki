@@ -3,9 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
+console.log("native version")
 export { type Theme, breakpoints, useTheme } from "../theme";
-export { type YoshikiRegistry } from "../type";
 
 export { useYoshiki, type Stylable, type CssObject } from "./generator";
-
-export { useStyleRegistry, StyleRegistryProvider, createStyleRegistry } from "./noop-registry";

@@ -3,7 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import { Breakpoints, breakpoints } from "./type";
+import { breakpoints } from "./theme";
+import { Breakpoints } from "./type";
 
 export const isBreakpoints = <T>(value: unknown): value is Breakpoints<T> => {
 	if (typeof value !== "object" || !value) return false;
