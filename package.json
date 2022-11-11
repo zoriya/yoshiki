@@ -1,5 +1,5 @@
 {
-	"name": "yoshiki",
+	"name": "yoshiki-workspace",
 	"version": "1.0.0",
 	"main": "src/index.ts",
 	"author": "Zoe Roux <zoe.roux@sdg.moe>",
@@ -12,15 +12,6 @@
 		"packages": [
 			"packages/*",
 			"examples/*"
-		],
-		"nohoist": [
-			"**/react",
-			"**/react/**",
-			"**/react-dom",
-			"**/react-dom/**",
-			"**/react-native",
-			"**/react-native/**",
-			"**/typescript/**"
 		]
 	},
 	"prettier": {

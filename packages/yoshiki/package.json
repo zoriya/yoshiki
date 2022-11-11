@@ -7,6 +7,7 @@
 		".": "./src/index.ts",
 		"./native": "./src/native/index.ts"
 	},
+	"packageManager": "yarn@3.2.4",
 	"peerDependencies": {
 		"react": "*",
 		"react-native": "*"

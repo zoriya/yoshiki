@@ -9,7 +9,7 @@ module.exports = async function (env, argv) {
 		{
 			...env,
 			babel: {
-				dangerouslyAddModulePathsToTranspile: ["@yoshiki"],
+				dangerouslyAddModulePathsToTranspile: ["yoshiki"],
 			},
 		},
 		argv,

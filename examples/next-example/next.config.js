@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-const withTM = require("next-transpile-modules")(["@yoshiki/react", "@yoshiki/core"]);
+const withTM = require("next-transpile-modules")(["yoshiki"]);
 const path = require("path");
 
 /**
