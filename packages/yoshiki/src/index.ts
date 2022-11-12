@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-console.log("Web version")
 export { type Theme, breakpoints, useTheme } from "./theme";
 
 export {
