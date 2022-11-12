@@ -12,10 +12,6 @@ import { isBreakpoints } from "../utils";
 type EnhancedStyle<Properties> = {
 	[key in keyof Properties]: YoshikiStyle<Properties[key]>;
 };
-export type CssObject =
-	| EnhancedStyle<ViewStyle>
-	| EnhancedStyle<TextStyle>
-	| EnhancedStyle<ImageStyle>;
 type Properties = ViewStyle | TextStyle | ImageStyle;
 
 const useBreakpoint = (): number => {
@@ -51,10 +47,13 @@ export const useYoshiki = () => {
 	const theme = useTheme();
 
 	return {
-		css: (css: CssObject, leftOvers?: { style?: Properties }) => {
+		css: <Style extends ViewStyle | TextStyle | ImageStyle>(
+			css: EnhancedStyle<Style>,
+			leftOvers?: { style?: Style },
+		): { style: Style } => {
 			const { style, ...leftOverProps } = leftOvers ?? {};
 
-			const inline: Properties = Object.fromEntries(
+			const inline: Style = Object.fromEntries(
 				Object.entries(css)
 					.map(([key, value]) => [key, propertyMapper(value, { breakpoint, theme })])
 					.filter(([, value]) => value !== undefined),
@@ -70,5 +69,5 @@ export const useYoshiki = () => {
 };
 
 export type Stylable = {
-	style: Properties
-}
+	style: Properties;
+};

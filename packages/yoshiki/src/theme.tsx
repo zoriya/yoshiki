@@ -3,8 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
+import { createContext, ReactNode, useContext } from "react";
+
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface Theme {};
+export interface Theme {}
 
 export const breakpoints = {
 	xs: 0,
@@ -12,8 +14,12 @@ export const breakpoints = {
 	md: 900,
 	lg: 1200,
 	xl: 1600,
-}
+};
 
-export const useTheme = () => {
-	return {} as Theme;
+const ThemeContext = createContext({});
+
+export const useTheme = () => useContext(ThemeContext);
+
+export const ThemeProvider = ({ theme, children }: { theme: Theme; children?: ReactNode }) => {
+	return <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>;
 };

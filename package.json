@@ -6,6 +6,7 @@
 	"license": "MIT",
 	"private": true,
 	"scripts": {
+		"build": "yarn workspace yoshiki build",
 		"next": "yarn workspace next-example dev",
 		"expo": "yarn workspace expo-example dev",
 		"lint": "eslint . --ext .ts,.tsx "

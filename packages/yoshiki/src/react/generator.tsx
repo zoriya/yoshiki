@@ -8,7 +8,11 @@ import { YoshikiStyle } from "../type";
 import { isBreakpoints } from "../utils";
 import { CSSProperties, useInsertionEffect } from "react";
 import { useStyleRegistry } from "./registry";
-import type { CssObject } from ".";
+import { Properties } from "csstype";
+
+export type CssObject = {
+	[key in keyof Properties]: YoshikiStyle<Properties[key]>;
+};
 
 const generateAtomicCss = <Property extends number | boolean | string | undefined>(
 	key: string,

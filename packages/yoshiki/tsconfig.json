@@ -4,7 +4,6 @@
 		"lib": ["dom", "dom.iterable", "esnext"],
 		"declaration": true,
 		"sourceMap": true,
-		"noEmit": true,
 		"allowJs": true,
 		"skipLibCheck": true,
 		"strict": true,
@@ -16,8 +15,9 @@
 		"isolatedModules": true,
 		"jsx": "react-native",
 		"incremental": true,
-		"rootDir": "src/"
+		"rootDir": "src/",
+		"outDir": "dist/"
 	},
-	"include": ["**/*.ts", "**/*.tsx"],
+	"include": ["src/**/*.ts", "src/**/*.tsx"],
 	"exclude": ["node_modules"]
 }

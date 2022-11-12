@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-export { type Theme, breakpoints, useTheme } from "./theme";
+export { type Theme, breakpoints, useTheme, ThemeProvider, defaultTheme } from "./theme";
 
 export {
 	useYoshiki,
@@ -11,5 +11,4 @@ export {
 	StyleRegistryProvider,
 	createStyleRegistry,
 	type Stylable,
-	type CssObject,
 } from "./react";
