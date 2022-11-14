@@ -1,4 +1,4 @@
-# yoshiki
+# Yoshiki
 
 ## Features
 

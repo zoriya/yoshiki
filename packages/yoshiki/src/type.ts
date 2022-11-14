@@ -7,7 +7,7 @@ import { breakpoints, Theme } from "./theme";
 
 export type YoshikiStyle<Property> =
 	| Property
-	| ((theme: Theme) => Property)
+	| ((theme: Theme) => Property | Breakpoints<Property>)
 	| Breakpoints<Property>;
 
 

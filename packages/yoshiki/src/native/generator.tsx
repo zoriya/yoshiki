@@ -7,10 +7,12 @@ import { ViewStyle, TextStyle, ImageStyle, useWindowDimensions } from "react-nat
 import { breakpoints, Theme, useTheme } from "../theme";
 import { Breakpoints, YoshikiStyle } from "../type";
 import { isBreakpoints } from "../utils";
+import { shorthandsFn } from "./shorthands";
 
-// TODO: shorhands
 type EnhancedStyle<Properties> = {
 	[key in keyof Properties]: YoshikiStyle<Properties[key]>;
+} & {
+	[key in keyof typeof shorthandsFn]?: Parameters<typeof shorthandsFn[key]>[0];
 };
 type Properties = ViewStyle | TextStyle | ImageStyle;
 
@@ -24,22 +26,32 @@ const useBreakpoint = (): number => {
 const propertyMapper = <
 	Property extends number | string | boolean | undefined | Property[] | object,
 >(
-	value: Property | Breakpoints<Property> | ((theme: Theme) => Property),
+	key: string,
+	value: YoshikiStyle<Property>,
 	{ breakpoint, theme }: { breakpoint: number; theme: Theme },
-): Property | undefined => {
+): [string, number | string | boolean | undefined | object][] => {
+	if (key in shorthandsFn) {
+		// @ts-ignore `key` is not narrowed to `keyof typeof shorthandsFn` and value is not type safe.
+		const expanded = shorthandsFn[key as keyof typeof shorthandsFn](value);
+		return Object.entries(expanded)
+			.map(([eKey, eValue]) => propertyMapper(eKey, eValue, { breakpoint, theme }))
+			.flat();
+	}
+
+	if (typeof value === "function") {
+		value = value(theme);
+	}
 	if (isBreakpoints<Property>(value)) {
 		const bpKeys = Object.keys(breakpoints) as Array<keyof Breakpoints<Property>>;
 		for (let i = breakpoint; i >= 0; i--) {
 			if (bpKeys[i] in value) {
-				return value[bpKeys[i]];
+				const bpVal = value[bpKeys[i]];
+				return bpVal ? [[key, bpVal]] : [];
 			}
 		}
-		return undefined;
+		return [];
 	}
-	if (typeof value === "function") {
-		return value(theme);
-	}
-	return value;
+	return [[key, value]];
 };
 
 export const useYoshiki = () => {
@@ -53,10 +65,11 @@ export const useYoshiki = () => {
 		): { style: Style } => {
 			const { style, ...leftOverProps } = leftOvers ?? {};
 
+			// @ts-ignore propertyMapper always returns key that are valid for the current Style
 			const inline: Style = Object.fromEntries(
-				Object.entries(css)
-					.map(([key, value]) => [key, propertyMapper(value, { breakpoint, theme })])
-					.filter(([, value]) => value !== undefined),
+				Object.entries(css).flatMap(([key, value]) =>
+					propertyMapper(key, value, { breakpoint, theme }),
+				),
 			);
 
 			return {

@@ -36,7 +36,7 @@ export default function Home(props: object) {
 				</h1>
 
 				<Box />
-				<Box {...css({ background: "blue" })} />
+				<Box {...css({ bg: "blue", p: "12px" })} />
 
 				<p>
 					Get started by editing <code>pages/index.tsx</code>

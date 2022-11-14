@@ -9,9 +9,12 @@ import { isBreakpoints } from "../utils";
 import { CSSProperties, useInsertionEffect } from "react";
 import { useStyleRegistry } from "./registry";
 import { Properties } from "csstype";
+import { shorthandsFn } from "./shorthands";
 
-export type CssObject = {
+type CssObject = {
 	[key in keyof Properties]: YoshikiStyle<Properties[key]>;
+} & {
+	[key in keyof typeof shorthandsFn]?: Parameters<typeof shorthandsFn[key]>[0];
 };
 
 const generateAtomicCss = <Property extends number | boolean | string | undefined>(
@@ -19,6 +22,14 @@ const generateAtomicCss = <Property extends number | boolean | string | undefine
 	value: YoshikiStyle<Property>,
 	{ theme }: { theme: Theme },
 ): [string, string][] => {
+	if (key in shorthandsFn) {
+		// @ts-ignore `key` is not narrowed to `keyof typeof shorthandsFn` and value is not type safe.
+		const expanded = shorthandsFn[key as keyof typeof shorthandsFn](value);
+		return Object.entries(expanded)
+			.map(([eKey, eValue]) => generateAtomicCss(eKey, eValue, { theme }))
+			.flat();
+	}
+
 	const cssKey = key.replace(/[A-Z]/g, "-$&").toLowerCase();
 
 	if (typeof value === "function") {

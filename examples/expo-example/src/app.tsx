@@ -12,7 +12,7 @@ const CustomBox = ({ color, ...props }: { color: string } & Stylable) => {
 	const { css } = useYoshiki();
 
 	return (
-		<View {...css({ backgroundColor: color }, props)}>
+		<View {...css({ bg: color, p: "13px", alignItems: "center" }, props)}>
 			<Text {...css({ color: "white" })}>Text inside the custom black box.</Text>
 		</View>
 	);

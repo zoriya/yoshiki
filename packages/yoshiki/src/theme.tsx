@@ -18,7 +18,7 @@ export const breakpoints = {
 
 const ThemeContext = createContext({});
 
-export const useTheme = () => useContext(ThemeContext);
+export const useTheme = (): Theme => useContext(ThemeContext);
 
 export const ThemeProvider = ({ theme, children }: { theme: Theme; children?: ReactNode }) => {
 	return <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>;
