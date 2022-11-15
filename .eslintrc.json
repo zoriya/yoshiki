@@ -17,6 +17,7 @@
 				""
 			],
 			1
-		]
+		],
+		"@typescript-eslint/ban-ts-ignore": "off"
 	}
 }

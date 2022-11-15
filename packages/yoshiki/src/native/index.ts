@@ -6,3 +6,5 @@
 export { type Theme, breakpoints, useTheme, ThemeProvider } from "../theme";
 
 export { useYoshiki, type Stylable } from "./generator";
+
+export { Pressable } from "./hover";

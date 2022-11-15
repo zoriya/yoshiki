@@ -6,7 +6,7 @@
 import { StatusBar } from "expo-status-bar";
 import { Text, View } from "react-native";
 import { registerRootComponent } from "expo";
-import { Stylable, useYoshiki } from "yoshiki/native";
+import { Pressable, Stylable, useYoshiki } from "yoshiki/native";
 
 const CustomBox = ({ color, ...props }: { color: string } & Stylable) => {
 	const { css } = useYoshiki();
@@ -22,9 +22,29 @@ const BoxWithoutProps = (props: Stylable) => {
 	const { css } = useYoshiki();
 
 	return (
-		<View {...css({ backgroundColor: { xs: "#00ff00", md: "#ff0000" } }, props)}>
-			<Text>Text inside the box without props (green on small screens, red on bigs)</Text>
-		</View>
+		<Pressable
+			{...css(
+				{
+					backgroundColor: { xs: "#00ff00", md: "#ff0000" },
+					hover: { alignContent: "center" },
+					press: { alignContent: "center" },
+					focus: { alignContent: "center" },
+				},
+				props,
+			)}
+		>
+			<Text
+				{...css(
+					{
+						backgroundColor: { xs: "#00ff00", md: "#ff0000" },
+						hover: { alignContent: "center" },
+					},
+					props,
+				)}
+			>
+				Text inside the box without props (green on small screens, red on bigs)
+			</Text>
+		</Pressable>
 	);
 };
 

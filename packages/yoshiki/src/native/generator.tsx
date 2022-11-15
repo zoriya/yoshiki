@@ -54,28 +54,70 @@ const propertyMapper = <
 	return [[key, value]];
 };
 
+type WithState<Style> = {
+	hover: Style;
+	focus: Style;
+	press: Style;
+};
+type AtLeastOne<T, U = {[K in keyof T]: Pick<T, K> }> = Partial<T> & U[keyof U]
+
+const hasState = <Style,>(obj: unknown): obj is WithState<Style> => {
+	if (!obj || typeof obj !== "object") return false;
+	return "hover" in obj || "focus" in obj || "press" in obj;
+};
+
 export const useYoshiki = () => {
 	const breakpoint = useBreakpoint();
 	const theme = useTheme();
 
 	return {
-		css: <Style extends ViewStyle | TextStyle | ImageStyle>(
-			css: EnhancedStyle<Style>,
+		css: <
+			Style extends ViewStyle | TextStyle | ImageStyle,
+			State extends Partial<WithState<EnhancedStyle<Style>>> | Record<string, never>,
+		>(
+			css: EnhancedStyle<Style> & State,
 			leftOvers?: { style?: Style },
-		): { style: Style } => {
+		): State extends AtLeastOne<WithState<unknown>>
+			? { style: (state: { pressed: boolean; focused: boolean; hovered: boolean }) => Style }
+			: { style: Style } => {
 			const { style, ...leftOverProps } = leftOvers ?? {};
 
-			// @ts-ignore propertyMapper always returns key that are valid for the current Style
-			const inline: Style = Object.fromEntries(
-				Object.entries(css).flatMap(([key, value]) =>
-					propertyMapper(key, value, { breakpoint, theme }),
-				),
-			);
-
-			return {
-				style: { ...inline, ...style },
-				...leftOverProps,
+			const processStyle = (styleList: EnhancedStyle<Style>): Style => {
+				// @ts-ignore propertyMapper always returns key that are valid for the current Style
+				return Object.fromEntries(
+					Object.entries(styleList).flatMap(([key, value]) =>
+						propertyMapper(key, value, { breakpoint, theme }),
+					),
+				);
 			};
+
+			if (hasState<Style>(css)) {
+				const { hover, focus, press, ...inline } = css;
+				const ret: {
+					style: (state: { hovered: boolean; focused: boolean; pressed: boolean }) => Style;
+				} = {
+					style: ({ hovered, focused, pressed }) => ({
+						// @ts-ignore EnhancedStyle<Style> is not assignable to EnhancedStyle<Style>...
+						...processStyle(inline),
+						...(hovered ? hover : {}),
+						...(focused ? focus : {}),
+						...(pressed ? press : {}),
+						...style,
+					}),
+					...leftOverProps,
+				};
+
+				// @ts-ignore Ts is not able to identify the type of the return type (the condition throws him off).
+				return ret;
+			} else {
+				const ret: { style: Style } = {
+					style: { ...processStyle(css), ...style },
+					...leftOverProps,
+				};
+
+				// @ts-ignore Ts is not able to identify the type of the return type (the condition throws him off).
+				return ret;
+			}
 		},
 		theme: theme,
 	};
