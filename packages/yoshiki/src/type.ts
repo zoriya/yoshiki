@@ -10,7 +10,18 @@ export type YoshikiStyle<Property> =
 	| ((theme: Theme) => Property | Breakpoints<Property>)
 	| Breakpoints<Property>;
 
-
 export type Breakpoints<Property> = {
-	[key in keyof (typeof breakpoints)]?: Property;
+	[key in keyof typeof breakpoints]?: Property;
+};
+
+export type WithState<Style> = {
+	hover: Style;
+	focus: Style;
+	press: Style;
+};
+export type AtLeastOne<T, U = { [K in keyof T]: Pick<T, K> }> = Partial<T> & U[keyof U];
+
+export const hasState = <Style>(obj: unknown): obj is WithState<Style> => {
+	if (!obj || typeof obj !== "object") return false;
+	return "hover" in obj || "focus" in obj || "press" in obj;
 };

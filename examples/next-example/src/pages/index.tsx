@@ -12,12 +12,9 @@ const Box = ({ children, ...props }: { children?: ReactNode } & Stylable) => {
 	const { css } = useYoshiki();
 
 	return (
-		<div {...css({ width: "5rem", height: "5rem", background: "red" }, props)}>
-			{children}
-		</div>
-	)
-}
-
+		<div {...css({ width: "5rem", height: "5rem", background: "red" }, props)}>{children}</div>
+	);
+};
 
 export default function Home(props: object) {
 	const { css } = useYoshiki();
@@ -44,14 +41,30 @@ export default function Home(props: object) {
 
 				<div
 					{...css({
-						background: { xs: "red", sm: "blue", md: "green" },
+						backgroundColor: "green",
+						hover: {
+							backgroundColor: "blue",
+						},
+						press: {
+							backgroundColor: "red",
+						},
+						focus: {
+							backgroundColor: "yellow",
+						},
 					})}
+					tabIndex={0}
 				>
 					<a href="https://nextjs.org/docs">
 						<h2>Documentation &rarr;</h2>
 						<p>Find in-depth information about Next.js features and API.</p>
 					</a>
+				</div>
 
+				<div
+					{...css({
+						background: { xs: "red", sm: "blue", md: "green" },
+					})}
+				>
 					<a href="https://nextjs.org/learn">
 						<h2>Learn &rarr;</h2>
 						<p>Learn about Next.js in an interactive course with quizzes!</p>

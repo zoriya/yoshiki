@@ -5,6 +5,7 @@
 
 import { Theme, ThemeProvider, useYoshiki } from "yoshiki";
 import { AppProps } from "next/app";
+import { useMobileHover } from "yoshiki";
 
 declare module "yoshiki" {
 	export interface Theme {
@@ -25,6 +26,8 @@ const AppName = () => {
 };
 
 const App = ({ Component, pageProps }: AppProps) => {
+	useMobileHover();
+
 	return (
 		<ThemeProvider theme={theme}>
 			<Component {...pageProps} />

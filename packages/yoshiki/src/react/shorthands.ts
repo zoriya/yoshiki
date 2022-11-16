@@ -49,6 +49,8 @@ export const shorthandsFn = {
 	}),
 	// This can't be background because react native does not support it.
 	bg: (v: YSPs["backgroundColor"]): YSPs => ({
+		// We still remove the background in case it was set before.
+		background: "unset",
 		backgroundColor: v,
 	}),
 };

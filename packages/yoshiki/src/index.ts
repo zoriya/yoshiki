@@ -11,4 +11,6 @@ export {
 	StyleRegistryProvider,
 	createStyleRegistry,
 	type Stylable,
+	useMobileHover,
+	Pressable
 } from "./react";

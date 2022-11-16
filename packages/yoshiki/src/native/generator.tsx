@@ -5,7 +5,7 @@
 
 import { ViewStyle, TextStyle, ImageStyle, useWindowDimensions } from "react-native";
 import { breakpoints, Theme, useTheme } from "../theme";
-import { Breakpoints, YoshikiStyle } from "../type";
+import { AtLeastOne, Breakpoints, WithState, YoshikiStyle, hasState } from "../type";
 import { isBreakpoints } from "../utils";
 import { shorthandsFn } from "./shorthands";
 
@@ -52,18 +52,6 @@ const propertyMapper = <
 		return [];
 	}
 	return [[key, value]];
-};
-
-type WithState<Style> = {
-	hover: Style;
-	focus: Style;
-	press: Style;
-};
-type AtLeastOne<T, U = {[K in keyof T]: Pick<T, K> }> = Partial<T> & U[keyof U]
-
-const hasState = <Style,>(obj: unknown): obj is WithState<Style> => {
-	if (!obj || typeof obj !== "object") return false;
-	return "hover" in obj || "focus" in obj || "press" in obj;
 };
 
 export const useYoshiki = () => {
@@ -126,3 +114,7 @@ export const useYoshiki = () => {
 export type Stylable = {
 	style: Properties;
 };
+
+export type StylableHoverable = {
+	style: ((state: { hovered: boolean, focused: boolean, pressed: boolean}) => Properties) | Properties;
+}
