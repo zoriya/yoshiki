@@ -4,6 +4,20 @@
 //
 
 import React, { createContext, ReactNode, useContext } from "react";
+import { breakpoints } from "../theme";
+
+function findLastIndex<T>(
+	array: readonly T[],
+	predicate: (element: T, index: number) => boolean,
+	startIndex?: number,
+): number {
+	for (let i = startIndex ?? array.length - 1; i >= 0; i--) {
+		if (predicate(array[i], i)) {
+			return i;
+		}
+	}
+	return -1;
+}
 
 class StyleRegistry {
 	private completed: string[] = [];
@@ -37,6 +51,8 @@ class StyleRegistry {
 	}
 
 	flushToBrowser() {
+		const toMerge: string[] = [];
+
 		if (!this.styleElement) {
 			const styles = document.querySelectorAll<HTMLStyleElement>("style[data-yoshiki]");
 			for (const style of styles) {
@@ -45,31 +61,92 @@ class StyleRegistry {
 					this.styleElement = style;
 					style.dataset.yoshiki = "";
 				} else {
-					this.styleElement.textContent = [this.styleElement.textContent, style.textContent].join(
-						"\n",
-					);
+					if (style.textContent) toMerge.push(...style.textContent.split("\n"));
 					style.remove();
 				}
 			}
 		}
 
-		const toFlush = this.flush();
+		// If we have something to merge, do it before a flush.
+		const toFlush = toMerge.length ? toMerge : this.flush();
 		if (!toFlush.length) return;
 
 		if (!this.styleElement) {
 			document.head.insertAdjacentHTML(
 				"beforeend",
-				`<style data-yoshiki="">${toFlush.join("\n")}</style>`,
+				`<style data-yoshiki="">${this.toStyleString(toFlush)}</style>`,
 			);
 		} else {
-			this.styleElement.textContent = [this.styleElement.textContent, ...toFlush].join("\n");
+			this.styleElement.textContent = this.toStyleString(toFlush, this.styleElement.textContent);
 		}
+
+		// Since we did not flush earlier to merge, we do it now.
+		if (toMerge.length) this.flushToBrowser();
 	}
 
 	flushToComponent() {
 		const toFlush = this.flush();
 		if (!toFlush.length) return null;
-		return <style data-yoshiki={this.completed.join(" ")}>{toFlush.join("\n")}</style>;
+		return <style data-yoshiki={this.completed.join(" ")}>{this.toStyleString(toFlush)}</style>;
+	}
+
+	toStyleString(classes: string[], existingStyle?: string | null) {
+		const newChunks = this.splitInChunks(classes);
+		if (!existingStyle) {
+			return newChunks
+				.map((x, i) => (x.length ? x.join("\n") + `\n/*${i}*/` : null))
+				.filter((x) => x)
+				.join("\n");
+		}
+
+		const lines = existingStyle.split("\n");
+		const comReg = new RegExp("/*(\\d+)*/");
+
+		for (const [i, chunk] of newChunks.entries()) {
+			if (!chunk.length) continue;
+			const pos = findLastIndex(lines, (x) => {
+				const match = comReg.exec(x);
+				if (!match) return false;
+				return parseInt(match[1]) <= i;
+			});
+
+			if (pos === -1) {
+				// No section with a same or lower priority exists, create one.
+				lines.splice(0, 0, ...chunk, `/*${i}*/`);
+			} else if (!lines[pos].includes(i.toString())) {
+				// Our session does not exist, create one at the right place.
+				lines.splice(pos + 1, 0, ...chunk, `/*${i}*/`);
+			} else {
+				// Append in our section.
+				lines.splice(pos, 0, ...chunk);
+			}
+		}
+
+		return existingStyle;
+	}
+
+	splitInChunks(classes: string[]): string[][] {
+		const chunks: string[][][] = [...Array(4 /* Normal, Hover, Focus and Active*/)].map(() =>
+			[...Array(1 + Object.keys(breakpoints).length)].map(() => []),
+		);
+
+		for (const cl of classes) {
+			const start = cl.indexOf(".ys-");
+			const cn = cl.substring(start, cl.indexOf("-", start + 4));
+			const modifier = cn.includes("_") ? cn.substring(4, cn.lastIndexOf("_")) : null;
+
+			if (!modifier) {
+				chunks[0][0].push(cl);
+				continue;
+			}
+
+			const type = ["hover", "focus", "press"].findIndex((x) => modifier.includes(x)) + 1;
+			const bp = Object.keys(breakpoints).findIndex((x) => modifier.includes(x)) + 1;
+
+			chunks[type][bp].push(cl);
+		}
+
+		return chunks.flat();
 	}
 }
 

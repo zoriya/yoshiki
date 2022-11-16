@@ -69,7 +69,14 @@ export default function Home(props: object) {
 						<h2>Learn &rarr;</h2>
 						<p>Learn about Next.js in an interactive course with quizzes!</p>
 					</a>
-
+				</div>
+				<div
+					{...css({
+						hover: {
+							background: { xs: "red", sm: "blue", md: "green" },
+						},
+					})}
+				>
 					<a href="https://github.com/vercel/next.js/tree/canary/examples">
 						<h2>Examples &rarr;</h2>
 						<p>Discover and deploy boilerplate example Next.js projects.</p>

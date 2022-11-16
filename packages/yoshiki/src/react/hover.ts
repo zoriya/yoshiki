@@ -18,7 +18,7 @@ export const useMobileHover = () => {
 		const disableHover = () => {
 			if (hoverTimeout) clearTimeout(hoverTimeout);
 			preventHover = true;
-			hoverTimeout = setTimeout(() => (preventHover = false), 500);
+			hoverTimeout = setTimeout(() => (preventHover = false), 1000);
 			document.body.classList.add("noHover");
 		};
 

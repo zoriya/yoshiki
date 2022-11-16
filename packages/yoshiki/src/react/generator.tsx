@@ -25,7 +25,7 @@ const stateMapper: { [key in keyof (WithState<undefined> & { normal: undefined }
 	// :focus-visible is a pseudo-selector that only enables the focus ring when using the keyboard.
 	focus: (cn) => `.${cn}:focus-visible`,
 	// The body.noHover will be set when the users uses a touch screen instead of a mouse. This is used to only enable hover with the mouse.
-	hover: (cn) => `:where(:not(body.noHover)) .${cn}:hover`,
+	hover: (cn) => `:where(body:not(.noHover)) .${cn}:hover`,
 	/* ["hover", ":hover"], */
 };
 
