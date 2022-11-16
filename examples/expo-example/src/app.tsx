@@ -12,7 +12,7 @@ const CustomBox = ({ color, ...props }: { color: string } & Stylable) => {
 	const { css } = useYoshiki();
 
 	return (
-		<View {...css({ bg: color, p: "13px", alignItems: "center" }, props)}>
+		<View {...css({ bg: color, alignItems: "center" }, props)}>
 			<Text {...css({ color: "white" })}>Text inside the custom black box.</Text>
 		</View>
 	);
@@ -26,7 +26,7 @@ const BoxWithoutProps = (props: Stylable) => {
 			{...css(
 				{
 					backgroundColor: { xs: "#00ff00", md: "#ff0000" },
-					hover: { alignContent: "center" },
+					hover: { alignContent: "center", alignItems: "center" },
 					press: { alignContent: "center" },
 					focus: { alignContent: "center" },
 				},
@@ -34,13 +34,9 @@ const BoxWithoutProps = (props: Stylable) => {
 			)}
 		>
 			<Text
-				{...css(
-					{
-						backgroundColor: { xs: "#00ff00", md: "#ff0000" },
-						hover: { alignContent: "center" },
-					},
-					props,
-				)}
+				{...css({
+					backgroundColor: { xs: "#00ff00", md: "#ff0000" },
+				})}
 			>
 				Text inside the box without props (green on small screens, red on bigs)
 			</Text>

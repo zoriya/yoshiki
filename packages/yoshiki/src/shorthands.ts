@@ -3,11 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import { YoshikiStyle } from "../type";
-import { ImageStyle, TextStyle, ViewStyle } from "react-native";
+import type { EnhancedStyle } from "./type";
+import type { ViewStyle } from "react-native";
 
-type Properties = ViewStyle | TextStyle | ImageStyle;
-type YSPs = { [key in keyof Properties]: YoshikiStyle<Properties[key]> };
+type YSPs = EnhancedStyle<ViewStyle>
 
 export const shorthandsFn = {
 	p: (v: YSPs["padding"]): YSPs => ({

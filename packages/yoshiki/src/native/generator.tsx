@@ -7,14 +7,14 @@ import { ViewStyle, TextStyle, ImageStyle, useWindowDimensions } from "react-nat
 import { breakpoints, Theme, useTheme } from "../theme";
 import { AtLeastOne, Breakpoints, WithState, YoshikiStyle, hasState } from "../type";
 import { isBreakpoints } from "../utils";
-import { shorthandsFn } from "./shorthands";
+import { shorthandsFn } from "../shorthands";
 
-type EnhancedStyle<Properties> = {
+export type EnhancedStyle<Properties> = {
 	[key in keyof Properties]: YoshikiStyle<Properties[key]>;
 } & {
 	[key in keyof typeof shorthandsFn]?: Parameters<typeof shorthandsFn[key]>[0];
 };
-type Properties = ViewStyle | TextStyle | ImageStyle;
+export type Properties = ViewStyle | TextStyle | ImageStyle;
 
 const useBreakpoint = (): number => {
 	const { width } = useWindowDimensions();
@@ -54,6 +54,10 @@ const propertyMapper = <
 	return [[key, value]];
 };
 
+export type YsStyleProps<Style, State> = State extends AtLeastOne<WithState<Style>>
+	? { style: (state: { pressed: boolean; focused: boolean; hovered: boolean }) => Style }
+	: { style: Style };
+
 export const useYoshiki = () => {
 	const breakpoint = useBreakpoint();
 	const theme = useTheme();
@@ -65,9 +69,7 @@ export const useYoshiki = () => {
 		>(
 			css: EnhancedStyle<Style> & State,
 			leftOvers?: { style?: Style },
-		): State extends AtLeastOne<WithState<unknown>>
-			? { style: (state: { pressed: boolean; focused: boolean; hovered: boolean }) => Style }
-			: { style: Style } => {
+		): YsStyleProps<Style, State> => {
 			const { style, ...leftOverProps } = leftOvers ?? {};
 
 			const processStyle = (styleList: EnhancedStyle<Style>): Style => {
@@ -112,9 +114,11 @@ export const useYoshiki = () => {
 };
 
 export type Stylable = {
-	style: Properties;
+	style?: Properties;
 };
 
 export type StylableHoverable = {
-	style: ((state: { hovered: boolean, focused: boolean, pressed: boolean}) => Properties) | Properties;
-}
+	style:
+		| ((state: { hovered: boolean; focused: boolean; pressed: boolean }) => Properties)
+		| Properties;
+};

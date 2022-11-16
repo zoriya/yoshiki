@@ -3,4 +3,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-export * from "./index";
+export { type Theme, breakpoints, useTheme, ThemeProvider } from "./theme";
+
+export {
+	useYoshiki,
+	useStyleRegistry,
+	StyleRegistryProvider,
+	createStyleRegistry,
+	type Stylable,
+	type StylableHoverable,
+	useMobileHover,
+	Pressable
+} from "./react";

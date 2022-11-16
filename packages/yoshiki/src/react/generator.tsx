@@ -9,7 +9,7 @@ import { isBreakpoints } from "../utils";
 import { CSSProperties, useInsertionEffect } from "react";
 import { useStyleRegistry } from "./registry";
 import { Properties } from "csstype";
-import { shorthandsFn } from "./shorthands";
+import { shorthandsFn } from "../shorthands";
 
 type _CssObject = {
 	[key in keyof Properties]: YoshikiStyle<Properties[key]>;
@@ -17,7 +17,7 @@ type _CssObject = {
 	[key in keyof typeof shorthandsFn]?: Parameters<typeof shorthandsFn[key]>[0];
 };
 
-type CssObject = Partial<WithState<_CssObject>> & _CssObject;
+export type CssObject = Partial<WithState<_CssObject>> & _CssObject;
 
 const stateMapper: { [key in keyof (WithState<undefined> & { normal: undefined })]: (cn: string) => string } = {
 	normal: (cn) => `.${cn}`,

@@ -4,6 +4,8 @@
 //
 
 import { breakpoints, Theme } from "./theme";
+import { Properties as CssProperties } from "csstype";
+import type { ViewStyle, ImageStyle, TextStyle } from "react-native";
 
 export type YoshikiStyle<Property> =
 	| Property
@@ -24,4 +26,18 @@ export type AtLeastOne<T, U = { [K in keyof T]: Pick<T, K> }> = Partial<T> & U[k
 export const hasState = <Style>(obj: unknown): obj is WithState<Style> => {
 	if (!obj || typeof obj !== "object") return false;
 	return "hover" in obj || "focus" in obj || "press" in obj;
+};
+
+export type OmitNever<T> = {
+	[key in keyof T as T[key] extends never ? never : key]: T[key];
+};
+export type Combine<A, B> = OmitNever<Pick<A & B, keyof A & keyof B>>;
+
+export type CommonCss<Style extends ViewStyle | ImageStyle | TextStyle> = Combine<
+	CssProperties,
+	Style
+>;
+
+export type EnhancedStyle<Style extends ViewStyle | ImageStyle | TextStyle> = {
+	[key in keyof CommonCss<Style>]: YoshikiStyle<CommonCss<Style>[key]>;
 };

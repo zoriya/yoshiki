@@ -14,11 +14,11 @@ export const Pressable = ({
 	onBlur,
 	style,
 	...props
-}: {
+}: Omit<PressableProps, "style"> & {
 	style:
-		| PressableProps["style"]
+		| StyleProp<ViewStyle>
 		| ((state: { pressed: boolean; hovered: boolean; focused: boolean }) => StyleProp<ViewStyle>);
-} & PressableProps) => {
+}) => {
 	const [hovered, setHover] = useState(false);
 	const [focused, setFocus] = useState(false);
 

@@ -3,9 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import { Theme, ThemeProvider, useYoshiki } from "yoshiki";
+import { Theme, ThemeProvider } from "yoshiki";
+import { useYoshiki, useMobileHover } from "yoshiki/web";
 import { AppProps } from "next/app";
-import { useMobileHover } from "yoshiki";
 
 declare module "yoshiki" {
 	export interface Theme {
