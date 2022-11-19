@@ -4,15 +4,14 @@
 //
 
 import { Theme, breakpoints, useTheme } from "../theme";
-import { WithState, YoshikiStyle } from "../type";
+import { WithState, YoshikiStyle, CssProperties } from "../type";
 import { isBreakpoints } from "../utils";
 import { CSSProperties, useInsertionEffect } from "react";
 import { useStyleRegistry } from "./registry";
-import { Properties } from "csstype";
 import { shorthandsFn } from "../shorthands";
 
 type _CssObject = {
-	[key in keyof Properties]: YoshikiStyle<Properties[key]>;
+	[key in keyof CssProperties]: YoshikiStyle<CssProperties[key]>;
 } & {
 	[key in keyof typeof shorthandsFn]?: Parameters<typeof shorthandsFn[key]>[0];
 };

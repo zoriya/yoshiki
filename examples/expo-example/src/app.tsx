@@ -7,6 +7,7 @@ import { StatusBar } from "expo-status-bar";
 import { Text, View } from "react-native";
 import { registerRootComponent } from "expo";
 import { Pressable, Stylable, useYoshiki } from "yoshiki/native";
+import { Card } from "./common";
 
 const CustomBox = ({ color, ...props }: { color: string } & Stylable) => {
 	const { css } = useYoshiki();
@@ -60,6 +61,7 @@ function App() {
 			<CustomBox color="black" {...css({ borderColor: "red", borderWidth: 3 })} />
 			<BoxWithoutProps {...css({ borderColor: "red", borderWidth: 3 })} />
 			<StatusBar style="auto" />
+			<Card />
 		</View>
 	);
 }

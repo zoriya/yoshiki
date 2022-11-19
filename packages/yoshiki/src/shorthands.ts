@@ -3,10 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import type { EnhancedStyle } from "./type";
+import type { CommonStyle } from "./type";
 import type { ViewStyle } from "react-native";
 
-type YSPs = EnhancedStyle<ViewStyle>
+type YSPs = CommonStyle<ViewStyle>;
 
 export const shorthandsFn = {
 	p: (v: YSPs["padding"]): YSPs => ({

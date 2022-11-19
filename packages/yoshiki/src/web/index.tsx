@@ -4,6 +4,13 @@
 //
 
 import { CSSProperties } from "react";
+import type { PlatformT } from "../type";
+
+export const Platform: PlatformT = "web";
+
+export type YsWeb<Props extends Record<string, unknown>> = Omit<Props, "style"> & {
+	style?: CSSProperties;
+};
 
 export type Stylable = {
 	className?: string;
@@ -15,3 +22,5 @@ export type StylableHoverable = Stylable;
 export { useYoshiki } from "./generator";
 export { StyleRegistryProvider, useStyleRegistry, createStyleRegistry } from "./registry";
 export { Pressable, useMobileHover } from "./hover";
+export * from "./units";
+export { type Theme, breakpoints, useTheme, ThemeProvider } from "../theme";

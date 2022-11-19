@@ -14,6 +14,7 @@
 		"url": "https://github.com/AnonymusRaccoon/yoshiki/issues"
 	},
 	"main": "src/index.ts",
+	"react-native": "src/native/index.ts",
 	"types": "src/index.ts",
 	"source": "src/index.ts",
 	"scripts": {

@@ -4,8 +4,8 @@
 //
 
 import { breakpoints, Theme } from "./theme";
-import { Properties as CssProperties } from "csstype";
-import type { ViewStyle, ImageStyle, TextStyle } from "react-native";
+import { Properties as _CssProperties } from "csstype";
+import { shorthandsFn } from "./shorthands";
 
 export type YoshikiStyle<Property> =
 	| Property
@@ -28,16 +28,24 @@ export const hasState = <Style>(obj: unknown): obj is WithState<Style> => {
 	return "hover" in obj || "focus" in obj || "press" in obj;
 };
 
-export type OmitNever<T> = {
-	[key in keyof T as T[key] extends never ? never : key]: T[key];
+// dummy type only used for the API.
+export type Length = { a: 1 };
+export type CssProperties = _CssProperties<0 | Length>;
+
+type FilterOrNever<T, Filter> = T extends Filter ? Filter : never;
+type FilterOr<T, Filter> = [FilterOrNever<T, Filter>] extends [never] ? T : Filter;
+
+type CombineWithLength<A, B> = {
+	[key in keyof A & keyof B]?: FilterOr<(A & B)[key], Length>;
 };
-export type Combine<A, B> = OmitNever<Pick<A & B, keyof A & keyof B>>;
+export type CommonCss<Style> = CombineWithLength<CssProperties, Style>;
 
-export type CommonCss<Style extends ViewStyle | ImageStyle | TextStyle> = Combine<
-	CssProperties,
-	Style
->;
-
-export type EnhancedStyle<Style extends ViewStyle | ImageStyle | TextStyle> = {
+export type CommonStyle<Style> = {
 	[key in keyof CommonCss<Style>]: YoshikiStyle<CommonCss<Style>[key]>;
 };
+
+export type EnhancedStyle<Style> = CommonStyle<Style> & {
+	[key in keyof typeof shorthandsFn]?: Parameters<typeof shorthandsFn[key]>[0];
+};
+
+export type PlatformT = "web" | "ios" | "android" | "windows" | "macos";

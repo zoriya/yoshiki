@@ -14,7 +14,6 @@ export type EnhancedStyle<Properties> = {
 } & {
 	[key in keyof typeof shorthandsFn]?: Parameters<typeof shorthandsFn[key]>[0];
 };
-export type Properties = ViewStyle | TextStyle | ImageStyle;
 
 const useBreakpoint = (): number => {
 	const { width } = useWindowDimensions();
@@ -113,12 +112,26 @@ export const useYoshiki = () => {
 	};
 };
 
-export type Stylable = {
-	style?: Properties;
+type Properties<Type extends "image" | "text" | "other" = "other"> = Type extends "text"
+	? TextStyle
+	: Type extends "image"
+	? ImageStyle
+	: ViewStyle;
+export type YsNative<Props extends Record<string, unknown>> = Omit<Props, "className" | "style"> &
+	Stylable<
+		Props["style"] extends TextStyle
+			? "text"
+			: Props["style"] extends ImageStyle
+			? "image"
+			: "other"
+	>;
+
+export type Stylable<Type extends "image" | "text" | "other" = "other"> = {
+	style?: Properties<Type>;
 };
 
-export type StylableHoverable = {
+export type StylableHoverable<Type extends "image" | "text" | "other" = "other"> = {
 	style:
-		| ((state: { hovered: boolean; focused: boolean; pressed: boolean }) => Properties)
-		| Properties;
+		| ((state: { hovered: boolean; focused: boolean; pressed: boolean }) => Properties<Type>)
+		| Properties<Type>;
 };
