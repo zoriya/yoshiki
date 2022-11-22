@@ -1,6 +1,6 @@
 {
 	"name": "yoshiki",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"author": "Zoe Roux <zoe.roux@sdg.moe> (https://github.com/AnonymusRaccoon)",
 	"license": "MIT",
 	"keywords": [
@@ -13,17 +13,21 @@
 	"bugs": {
 		"url": "https://github.com/AnonymusRaccoon/yoshiki/issues"
 	},
-	"main": "src/index.ts",
-	"react-native": "src/native/index.ts",
-	"types": "src/index.ts",
+	"main": "dist/index.js",
+	"react-native": "dist/native/index.ts",
+	"types": "dist/index.d.ts",
 	"source": "src/index.ts",
 	"scripts": {
-		"build": "tsc --build ."
+		"build": "tsc --build .",
+		"prepack": "cp ../../{LICENSE,README.md} ."
 	},
 	"packageManager": "yarn@3.2.4",
 	"peerDependencies": {
 		"react": "*",
-		"react-native": "*"
+		"react-native": "*",
+		"@types/node": "^18.11.9",
+		"@types/react": "^18.0.25",
+		"@types/react-native": "~0.70.6"
 	},
 	"peerDependenciesMeta": {
 		"react-native": {
@@ -31,9 +35,6 @@
 		}
 	},
 	"devDependencies": {
-		"@types/node": "^18.11.9",
-		"@types/react": "^18.0.25",
-		"@types/react-native": "~0.70.6",
 		"react": "^18.2.0",
 		"typescript": "^4.8.4"
 	}

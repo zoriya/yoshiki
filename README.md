@@ -13,7 +13,7 @@
 ## Usage
 
 ```tsx
-import { Stylable, useYoshiki } from "yoshiki";
+import { Stylable, useYoshiki } from "yoshiki/web";
 
 const ColoredDiv = ({ color }: { color: string }) => {
 	const { css } = useYoshiki();
@@ -78,7 +78,7 @@ If you want to use yoshiki to theme your component and allow others components t
 the props to the `css` function.
 
 ```tsx
-import { useYoshiki } from "yoshiki";
+import { useYoshiki } from "yoshiki/web";
 
 const Example = (props) => {
 	const { css } = useYoshiki();
@@ -95,7 +95,7 @@ To stay type-safe and ensure you don't forget to pass down the props, yoshiki ex
 
 ```tsx
 import { ReactNode } from "react";
-import { useYoshiki, Stylable } from "yoshiki";
+import { useYoshiki, Stylable } from "yoshiki/web";
 // or
 // import { useYoshiki, Stylable } from "yoshiki/native";
 
@@ -125,7 +125,7 @@ Yoshiki will handle overrides so the `ExampleText`'s p element will have a paddi
 To support server side rendering, you need to create a style registry and wrap your app with a `StyleRegistryProvider`.
 
 ```tsx
-import { StyleRegistryProvider, createStyleRegistry } from "yoshiki";
+import { StyleRegistryProvider, createStyleRegistry } from "yoshiki/web";
 
 const registry = createStyleRegistry();
 
@@ -144,7 +144,7 @@ const style = registry.flush();
 Simply use the following `getInitialProps` inside the `pages/_document.tsx` file.
 
 ```tsx
-import { StyleRegistryProvider, createStyleRegistry } from "yoshiki";
+import { StyleRegistryProvider, createStyleRegistry } from "yoshiki/web";
 import Document, { DocumentContext } from "next/document";
 
 Document.getInitialProps = async (ctx: DocumentContext) => {
@@ -183,7 +183,7 @@ To use the theme, you need to wrap your app with a `ThemeProvider`. If you are u
 need to use module augmentation to add your properties to the theme object.
 
 ```tsx
-import { Theme, ThemeProvider, useYoshiki } from "yoshiki";
+import { Theme, ThemeProvider, useYoshiki } from "yoshiki/web";
 
 declare module "yoshiki" {
 	export interface Theme {
@@ -210,4 +210,56 @@ const AppName = () => {
 
 	return <p {...css({ padding: (theme) => theme.spacing })}>{theme.name}</p>;
 };
+```
+
+### Native independence
+
+You can create the same page layout for React and React Native but use native features of both. For that,
+include `yoshiki` instead of `yoshiki/native` or `yoshiki/web`. It will allow you to use the css function
+with only css styles available in both React and React Native.
+To support units in spacing or lengths, you can use the units functions:
+
+```tsx
+import { useYoshiki, px, percent, em } from "yoshiki";
+import { Div, P, Span } from "my-super-component-lib";
+
+const App = () => {
+	const { css } = useYoshiki();
+
+	return (
+		<Div
+			{...css({
+				backgroundColor: "white",
+				p: px(12),
+				margin: em(2),
+				height: percent(50);
+			})}
+		>
+			<P>
+				Hello from <Span {...css({ color: "red" })}>Yoshiki</Span>
+			</P>
+		</Div>
+	);
+};
+```
+
+This will use the native version on React Native and the web version on React for web, so you can have all the benefits
+of each environment without its limitations. The downside is that your components need to pass stylables props to the
+DOM (so `className` and `style` on the web and `style` on React Native). React Native Web does not allow one to use the `className`,
+so it won't work with it. Yoshiki exposes the `splitRender` function to easily create components that will support this:
+
+```tsx
+import { splitRender } from "yoshiki";
+import { Text } from "react-native";
+import { ReactNode } from "react";
+
+export const P = splitRender<HTMLParagraphElement, Text, { children: ReactNode }>(
+	function _PWeb(props, ref) {
+		return <div ref={ref} {...props}></div>;
+	},
+	function _PNat(props, ref) {
+		return <Text ref={ref} {...props}></View>;
+	},
+);
+
 ```

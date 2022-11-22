@@ -4,7 +4,7 @@
 //
 
 import { Theme, breakpoints, useTheme } from "../theme";
-import { WithState, YoshikiStyle, CssProperties } from "../type";
+import { WithState, YoshikiStyle, CssProperties, Length } from "../type";
 import { isBreakpoints } from "../utils";
 import { CSSProperties, useInsertionEffect } from "react";
 import { useStyleRegistry } from "./registry";
@@ -28,7 +28,7 @@ const stateMapper: { [key in keyof (WithState<undefined> & { normal: undefined }
 	/* ["hover", ":hover"], */
 };
 
-const generateAtomicCss = <Property extends number | boolean | string | undefined>(
+const generateAtomicCss = <Property extends number | boolean | string | undefined | Length>(
 	key: string,
 	value: YoshikiStyle<Property>,
 	state: keyof WithState<undefined> | "normal",
