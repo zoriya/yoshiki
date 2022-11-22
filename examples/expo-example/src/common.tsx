@@ -4,20 +4,23 @@
 //
 
 import { px, useYoshiki } from "yoshiki";
-import { P } from "./components/text";
+import { P } from "./components/text/text";
+import { Div } from "./components/div";
 
 export const Card = () => {
 	const { css } = useYoshiki();
 
 	return (
-		<P
-			{...css({
-				backgroundColor: "black",
-				p: px(12),
-				/* color: "white", */
-			})}
-		>
-			Test
-		</P>
+		<Div {...css({ backgroundColor: { xs: "green", md: "blue" } })}>
+			<P
+				{...css({
+					backgroundColor: "black",
+					m: px(12),
+					color: "white",
+				})}
+			>
+				Test
+			</P>
+		</Div>
 	);
 };

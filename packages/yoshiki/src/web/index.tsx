@@ -24,3 +24,4 @@ export { StyleRegistryProvider, useStyleRegistry, createStyleRegistry } from "./
 export { Pressable, useMobileHover } from "./hover";
 export * from "./units";
 export { type Theme, breakpoints, useTheme, ThemeProvider } from "../theme";
+export { splitRender } from "./split-render";

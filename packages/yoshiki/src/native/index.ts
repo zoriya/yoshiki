@@ -16,3 +16,5 @@ export { Pressable } from "./hover";
 
 export * from "./units";
 
+export { splitRender } from "./split-render";
+
