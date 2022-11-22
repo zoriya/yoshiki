@@ -10,6 +10,17 @@
 - Atomic CSS generation
 - SSR support
 
+## Installation
+
+As any other npm package, simply run
+
+``yarn add yoshiki``
+
+or
+
+``npm install --save yoshiki``
+
+
 ## Usage
 
 ```tsx

@@ -33,7 +33,9 @@ export type Length = { a: 1 };
 export type CssProperties = _CssProperties<0 | Length>;
 
 type FilterOrNever<T, Filter> = T extends Filter ? Filter : never;
-type FilterOr<T, Filter> = [FilterOrNever<T, Filter>] extends [never] ? T : Filter;
+export type FilterOr<T, Filter, Replacement = Filter> = [FilterOrNever<T, Filter>] extends [never]
+	? T
+	: Replacement;
 
 type CombineWithLength<A, B> = {
 	[key in keyof A & keyof B]?: FilterOr<(A & B)[key], Length>;

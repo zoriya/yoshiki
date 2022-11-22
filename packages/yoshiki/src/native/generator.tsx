@@ -5,14 +5,26 @@
 
 import { ViewStyle, TextStyle, ImageStyle, useWindowDimensions } from "react-native";
 import { breakpoints, Theme, useTheme } from "../theme";
-import { AtLeastOne, Breakpoints, WithState, YoshikiStyle, hasState } from "../type";
+import {
+	AtLeastOne,
+	Breakpoints,
+	FilterOr,
+	WithState,
+	YoshikiStyle,
+	hasState,
+	Length,
+} from "../type";
 import { isBreakpoints } from "../utils";
 import { shorthandsFn } from "../shorthands";
 
 export type EnhancedStyle<Properties> = {
 	[key in keyof Properties]: YoshikiStyle<Properties[key]>;
 } & {
-	[key in keyof typeof shorthandsFn]?: Parameters<typeof shorthandsFn[key]>[0];
+	[key in keyof typeof shorthandsFn]?: FilterOr<
+		Parameters<typeof shorthandsFn[key]>[0],
+		Length,
+		number
+	>;
 };
 
 const useBreakpoint = (): number => {
