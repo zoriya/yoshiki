@@ -55,7 +55,9 @@ export const em = (value: number): Length => Web.em(value) as unknown as Length;
 export const rem = (value: number): Length => Web.rem(value) as unknown as Length;
 
 export { Platform };
-export { breakpoints, type Theme, ThemeProvider, useTheme } from "./theme";
+export { breakpoints, type Theme, useTheme } from "./theme";
+// Fallback to the web version.
+export { ThemeProvider } from "./web";
 
 export const splitRender = <
 	WebElement,

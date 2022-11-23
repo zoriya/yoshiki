@@ -163,7 +163,7 @@ export const StyleRegistryProvider = ({
 }: {
 	registry: StyleRegistry;
 	children: ReactNode;
-}) => RegistryContext.Provider({ value: registry, children });
+}) => createElement(RegistryContext.Provider, { value: registry }, [children]);
 
 export const useStyleRegistry = () => useContext(RegistryContext) || new StyleRegistry(true);
 

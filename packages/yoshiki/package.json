@@ -22,12 +22,14 @@
 		"prepack": "cp ../../{LICENSE,README.md} ."
 	},
 	"packageManager": "yarn@3.2.4",
+	"dependencies": {
+		"@types/node": "18.x.x",
+		"@types/react": "18.x.x",
+		"@types/react-native": ">= 0.70.0"
+	},
 	"peerDependencies": {
 		"react": "*",
-		"react-native": "*",
-		"@types/node": "^18.11.9",
-		"@types/react": "^18.0.25",
-		"@types/react-native": "~0.70.6"
+		"react-native": "*"
 	},
 	"peerDependenciesMeta": {
 		"react-native": {
@@ -35,7 +37,7 @@
 		}
 	},
 	"devDependencies": {
-		"react": "^18.2.0",
-		"typescript": "^4.8.4"
+		"react": "18.x.x",
+		"typescript": ">= 4.8.4"
 	}
 }

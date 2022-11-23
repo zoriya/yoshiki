@@ -3,8 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import { CSSProperties } from "react";
+import { createElement, CSSProperties, ReactNode } from "react";
 import type { PlatformT } from "../type";
+import { type Theme, ThemeContext } from "../theme";
 
 export const Platform: PlatformT = "web";
 
@@ -23,5 +24,9 @@ export { useYoshiki } from "./generator";
 export { StyleRegistryProvider, useStyleRegistry, createStyleRegistry } from "./registry";
 export { Pressable, useMobileHover } from "./hover";
 export * from "./units";
-export { type Theme, breakpoints, useTheme, ThemeProvider } from "../theme";
+export type { Theme };
+export { breakpoints, useTheme } from "../theme";
 export { splitRender } from "./split-render";
+
+export const ThemeProvider = ({ theme, children }: { theme: Theme; children?: ReactNode }) =>
+	createElement(ThemeContext.Provider, { value: theme }, [children]);

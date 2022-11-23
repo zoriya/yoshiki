@@ -3,8 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import { createContext, ReactNode, useContext } from "react";
-
+import { createContext, useContext } from "react";
+ 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface Theme {}
 
@@ -16,9 +16,9 @@ export const breakpoints = {
 	xl: 1600,
 };
 
-const ThemeContext = createContext({});
+// A theme provider can't be created here since a Context's Provider is not callable and we want to
+// support both react and react-native jsx modes. This is why the ThemeContext is exported.
+export const ThemeContext = createContext<Theme>({});
 
 export const useTheme = (): Theme => useContext(ThemeContext);
 
-export const ThemeProvider = ({ theme, children }: { theme: Theme; children?: ReactNode }) =>
-	ThemeContext.Provider({ value: theme, children });
