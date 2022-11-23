@@ -23,7 +23,7 @@ export type EnhancedStyle<Properties> = {
 	[key in keyof typeof shorthandsFn]?: FilterOr<
 		Parameters<typeof shorthandsFn[key]>[0],
 		Length,
-		number
+		YoshikiStyle<number>
 	>;
 };
 

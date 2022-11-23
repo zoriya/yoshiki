@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import React, { createContext, ReactNode, useContext } from "react";
+import { createContext, createElement, ReactNode, useContext } from "react";
 import { breakpoints } from "../theme";
 
 function findLastIndex<T>(
@@ -87,7 +87,11 @@ class StyleRegistry {
 	flushToComponent() {
 		const toFlush = this.flush();
 		if (!toFlush.length) return null;
-		return <style data-yoshiki={this.completed.join(" ")}>{this.toStyleString(toFlush)}</style>;
+		// JSX can't be used since the compiler is set to react-native mode.
+		return createElement("style", {
+			"data-yoshiki": this.completed.join(" "),
+			children: this.toStyleString(toFlush),
+		});
 	}
 
 	toStyleString(classes: string[], existingStyle?: string | null) {
@@ -159,9 +163,7 @@ export const StyleRegistryProvider = ({
 }: {
 	registry: StyleRegistry;
 	children: ReactNode;
-}) => {
-	return <RegistryContext.Provider value={registry}>{children}</RegistryContext.Provider>;
-};
+}) => RegistryContext.Provider({ value: registry, children });
 
 export const useStyleRegistry = () => useContext(RegistryContext) || new StyleRegistry(true);
 
