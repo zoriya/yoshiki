@@ -30,5 +30,3 @@ export const useMobileHover = () => {
 		};
 	}, []);
 };
-
-export const Pressable = "div";

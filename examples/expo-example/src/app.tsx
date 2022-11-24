@@ -4,10 +4,10 @@
 //
 
 import { StatusBar } from "expo-status-bar";
-import { Text, View } from "react-native";
+import { Text, View, Pressable } from "react-native";
 import { registerRootComponent } from "expo";
-import { Pressable, Stylable, useYoshiki } from "yoshiki/native";
-import { Card } from "./common";
+import { Stylable, useYoshiki, px } from "yoshiki";
+import { H1 } from "@expo/html-elements";
 
 const CustomBox = ({ color, ...props }: { color: string } & Stylable) => {
 	const { css } = useYoshiki();
@@ -34,13 +34,13 @@ const BoxWithoutProps = (props: Stylable) => {
 				props,
 			)}
 		>
-			<Text
+			<H1
 				{...css({
-					backgroundColor: { xs: "#00ff00", md: "#ff0000" },
+					color: { xs: "black", md: "white" },
 				})}
 			>
 				Text inside the box without props (green on small screens, red on bigs)
-			</Text>
+			</H1>
 		</Pressable>
 	);
 };
@@ -51,6 +51,7 @@ function App() {
 	return (
 		<View
 			{...css({
+				// @ts-ignore
 				flex: 1,
 				backgroundColor: "#fff",
 				alignItems: "center",
@@ -58,10 +59,9 @@ function App() {
 			})}
 		>
 			<Text>Open up App.tsx to start working on your app!</Text>
-			<CustomBox color="black" {...css({ borderColor: "red", borderWidth: 3 })} />
-			<BoxWithoutProps {...css({ borderColor: "red", borderWidth: 3 })} />
+			<CustomBox color="black" {...css({ borderColor: "red", borderWidth: px(3) })} />
+			<BoxWithoutProps {...css({ borderColor: "red", borderWidth: px(3) })} />
 			<StatusBar style="auto" />
-			<Card />
 		</View>
 	);
 }

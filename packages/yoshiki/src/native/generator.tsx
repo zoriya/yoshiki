@@ -66,7 +66,7 @@ const propertyMapper = <
 };
 
 export type YsStyleProps<Style, State> = State extends AtLeastOne<WithState<Style>>
-	? { style: (state: { pressed: boolean; focused: boolean; hovered: boolean }) => Style }
+	? { style: (state: { pressed?: boolean; focused?: boolean; hovered?: boolean }) => Style }
 	: { style: Style };
 
 export const useYoshiki = () => {
@@ -100,9 +100,9 @@ export const useYoshiki = () => {
 					style: ({ hovered, focused, pressed }) => ({
 						// @ts-ignore EnhancedStyle<Style> is not assignable to EnhancedStyle<Style>...
 						...processStyle(inline),
-						...(hovered ? hover : {}),
-						...(focused ? focus : {}),
-						...(pressed ? press : {}),
+						...(hovered ? processStyle(hover) : {}),
+						...(focused ? processStyle(focus) : {}),
+						...(pressed ? processStyle(press) : {}),
 						...style,
 					}),
 					...leftOverProps,
@@ -129,19 +129,10 @@ type Properties<Type extends "image" | "text" | "other" = "other"> = Type extend
 	: Type extends "image"
 	? ImageStyle
 	: ViewStyle;
-export type YsNative<Props extends Record<string, unknown>> = Omit<Props, "className" | "style"> &
-	Stylable<
-		Props["style"] extends TextStyle
-			? "text"
-			: Props["style"] extends ImageStyle
-			? "image"
-			: "other"
-	>;
 
 export type Stylable<Type extends "image" | "text" | "other" = "other"> = {
 	style?: Properties<Type>;
 };
-
 export type StylableHoverable<Type extends "image" | "text" | "other" = "other"> = {
 	style:
 		| ((state: { hovered: boolean; focused: boolean; pressed: boolean }) => Properties<Type>)

@@ -14,30 +14,38 @@
 		"url": "https://github.com/AnonymusRaccoon/yoshiki/issues"
 	},
 	"main": "dist/index.js",
-	"react-native": "dist/native/index.ts",
+	"react-native": "dist/native/index.js",
 	"types": "dist/index.d.ts",
 	"source": "src/index.ts",
 	"scripts": {
 		"build": "tsc --build .",
+		"watch": "tsc --watch",
 		"prepack": "cp ../../{LICENSE,README.md} ."
 	},
 	"packageManager": "yarn@3.2.4",
 	"dependencies": {
 		"@types/node": "18.x.x",
 		"@types/react": "18.x.x",
-		"@types/react-native": ">= 0.70.0"
+		"@types/react-native": ">= 0.70.0",
+		"@types/react-native-web": "npm:@types/react-native@*"
 	},
 	"peerDependencies": {
 		"react": "*",
-		"react-native": "*"
+		"react-native": "*",
+		"react-native-web": "*"
 	},
 	"peerDependenciesMeta": {
 		"react-native": {
+			"optional": true
+		},
+		"react-native-web": {
 			"optional": true
 		}
 	},
 	"devDependencies": {
 		"react": "18.x.x",
+		"react-dom": "^18.2.0",
+		"react-native-web": "^0.18.10",
 		"typescript": ">= 4.8.4"
 	}
 }

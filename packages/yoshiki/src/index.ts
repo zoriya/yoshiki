@@ -5,32 +5,30 @@
 
 import {
 	useYoshiki as useWebYoshiki,
-	splitRender as webSplitRender,
-	Platform,
 	type Stylable as WebStylable,
 	type StylableHoverable as WebStylableHoverable,
-	type YsWeb,
 } from "./web";
 import * as Web from "./web/units";
 
 import type {
 	Stylable as NativeStylable,
 	StylableHoverable as NativeStylableHoverable,
-	YsNative,
 } from "./native";
 
 import type { YsStyleProps } from "./native/generator";
 import type { Theme } from "./theme";
 import type { WithState, EnhancedStyle, Length } from "./type";
-import { ExoticComponent, ReactElement, Ref } from "react";
 import type { ViewStyle, ImageStyle, TextStyle } from "react-native";
 
+// TODO I could not find a way to deduce if ViewStyle, TextStyle or ImageStyle was given as parameter.
+// So I took all of them and said the type returns only a ViewStyle.
+// This is not typesafe and should be fixed.
 export const useYoshiki = (): {
 	css: <
-		Style extends ViewStyle & TextStyle & ImageStyle,
+		Style extends ViewStyle | TextStyle | ImageStyle,
 		State extends Partial<WithState<EnhancedStyle<Style>>> | Record<string, never>,
 	>(
-		css: EnhancedStyle<Style> & State,
+		css: EnhancedStyle<ViewStyle & TextStyle & ImageStyle> & State,
 		leftOvers?: { style?: Style } | WebStylable,
 	) => YsStyleProps<Style, State> | WebStylable;
 	theme: Theme;
@@ -47,27 +45,11 @@ export type Stylable<Type extends "image" | "text" | "other" = "other"> =
 export type StylableHoverable<Type extends "image" | "text" | "other" = "other"> =
 	| WebStylableHoverable
 	| NativeStylableHoverable<Type>;
-export type { YsWeb, YsNative };
-
 export const px = (value: number): Length => Web.px(value) as unknown as Length;
 export const percent = (value: number): Length => Web.percent(value) as unknown as Length;
 export const em = (value: number): Length => Web.em(value) as unknown as Length;
 export const rem = (value: number): Length => Web.rem(value) as unknown as Length;
 
-export { Platform };
 export { breakpoints, type Theme, useTheme } from "./theme";
 // Fallback to the web version.
 export { ThemeProvider } from "./web";
-
-export const splitRender = <
-	WebElement,
-	NativeElement,
-	Props,
-	StyleType extends "text" | "image" | "other" = "other",
->(
-	web: (props: Props & WebStylable, ref: Ref<WebElement>) => ReactElement,
-	native: (props: Props & NativeStylable<StyleType>, ref: Ref<NativeElement>) => ReactElement,
-): ExoticComponent<Props & Stylable> => {
-	// By default we return the web version. Same reason as why we return the web useYoshiki.
-	return webSplitRender<WebElement, NativeElement, Props, StyleType>(web, native);
-};

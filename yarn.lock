@@ -2820,7 +2820,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-native@npm:>= 0.70.0, @types/react-native@npm:~0.70.6":
+"@types/react-native-web@npm:@types/react-native@*, @types/react-native@npm:>= 0.70.0, @types/react-native@npm:~0.70.6":
   version: 0.70.6
   resolution: "@types/react-native@npm:0.70.6"
   dependencies:
@@ -13008,7 +13008,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dom@npm:18.2.0":
+"react-dom@npm:18.2.0, react-dom@npm:^18.2.0":
   version: 18.2.0
   resolution: "react-dom@npm:18.2.0"
   dependencies:
@@ -13080,7 +13080,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-web@npm:~0.18.10":
+"react-native-web@npm:^0.18.10, react-native-web@npm:~0.18.10":
   version: 0.18.10
   resolution: "react-native-web@npm:0.18.10"
   dependencies:
@@ -16251,13 +16251,19 @@ __metadata:
     "@types/node": 18.x.x
     "@types/react": 18.x.x
     "@types/react-native": ">= 0.70.0"
+    "@types/react-native-web": "npm:@types/react-native@*"
     react: 18.x.x
+    react-dom: ^18.2.0
+    react-native-web: ^0.18.10
     typescript: ">= 4.8.4"
   peerDependencies:
     react: "*"
     react-native: "*"
+    react-native-web: "*"
   peerDependenciesMeta:
     react-native:
+      optional: true
+    react-native-web:
       optional: true
   languageName: unknown
   linkType: soft

@@ -49,5 +49,3 @@ export type CommonStyle<Style> = {
 export type EnhancedStyle<Style> = CommonStyle<Style> & {
 	[key in keyof typeof shorthandsFn]?: Parameters<typeof shorthandsFn[key]>[0];
 };
-
-export type PlatformT = "web" | "ios" | "android" | "windows" | "macos";

@@ -6,7 +6,7 @@
 import { Theme, breakpoints, useTheme } from "../theme";
 import { WithState, YoshikiStyle, CssProperties, Length } from "../type";
 import { isBreakpoints } from "../utils";
-import { CSSProperties, useInsertionEffect } from "react";
+import { useInsertionEffect } from "react";
 import { useStyleRegistry } from "./registry";
 import { shorthandsFn } from "../shorthands";
 
@@ -18,7 +18,9 @@ type _CssObject = {
 
 export type CssObject = Partial<WithState<_CssObject>> & _CssObject;
 
-const stateMapper: { [key in keyof (WithState<undefined> & { normal: undefined })]: (cn: string) => string } = {
+const stateMapper: {
+	[key in keyof (WithState<undefined> & { normal: undefined })]: (cn: string) => string;
+} = {
 	normal: (cn) => `.${cn}`,
 	press: (cn) => `.${cn}:active`,
 	// :focus-visible is a pseudo-selector that only enables the focus ring when using the keyboard.
@@ -26,6 +28,11 @@ const stateMapper: { [key in keyof (WithState<undefined> & { normal: undefined }
 	// The body.noHover will be set when the users uses a touch screen instead of a mouse. This is used to only enable hover with the mouse.
 	hover: (cn) => `:where(body:not(.noHover)) .${cn}:hover`,
 	/* ["hover", ":hover"], */
+};
+
+const sanitize = (className: unknown) => {
+	const name = typeof className === "string" ? className : JSON.stringify(className);
+	return name.replaceAll(/[^\w-_]/g, "");
 };
 
 const generateAtomicCss = <Property extends number | boolean | string | undefined | Length>(
@@ -50,16 +57,18 @@ const generateAtomicCss = <Property extends number | boolean | string | undefine
 	}
 	if (isBreakpoints<Property>(value)) {
 		return Object.entries(value).map(([bp, bpValue]) => {
-			const className = `ys-${statePrefix}${bp}_${key}-${bpValue}`;
+			const className = `ys-${statePrefix}${bp}_${key}-${sanitize(bpValue)}`;
 			const bpWidth = breakpoints[bp as keyof typeof breakpoints];
 			return [
 				className,
-				`@media (min-width: ${bpWidth}px) { ${stateMapper[state](className)} { ${cssKey}: ${bpValue}; } }`,
+				`@media (min-width: ${bpWidth}px) { ${stateMapper[state](
+					className,
+				)} { ${cssKey}: ${bpValue}; } }`,
 			];
 		});
 	}
 
-	const className = `ys-${statePrefix}${key}-${value}`;
+	const className = `ys-${statePrefix}${key}-${sanitize(value)}`;
 	return [[className, `${stateMapper[state](className)} { ${cssKey}: ${value}; }`]];
 };
 
@@ -87,9 +96,9 @@ export const useYoshiki = () => {
 	}, [registry]);
 
 	return {
-		css: (css: CssObject, leftOverProps?: { className?: string; style?: CSSProperties }) => {
+		css: (css: CssObject, leftOverProps?: { className?: string }) => {
 			const { hover, focus, press, ...inline } = css;
-			const { className, style, ...leftOver } = leftOverProps ?? {};
+			const { className, ...leftOver } = leftOverProps ?? {};
 
 			const processStyles = (
 				inlineStyle?: _CssObject,
@@ -121,7 +130,6 @@ export const useYoshiki = () => {
 					processStyles(press, "press"),
 					className?.split(" "),
 				),
-				style: style,
 				...leftOver,
 			};
 		},
