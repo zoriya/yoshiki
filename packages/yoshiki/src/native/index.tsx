@@ -4,11 +4,27 @@
 //
 
 import { ReactNode } from "react";
+import { ImageStyle, TextStyle, ViewStyle } from "react-native";
 import { type Theme, ThemeContext } from "../theme";
+
+type Properties<Type extends "image" | "text" | "other" = "other"> = Type extends "text"
+	? TextStyle
+	: Type extends "image"
+	? ImageStyle
+	: ViewStyle;
+
+export type Stylable<Type extends "image" | "text" | "other" = "other"> = {
+	style?: Properties<Type>;
+};
+export type StylableHoverable<Type extends "image" | "text" | "other" = "other"> = {
+	style:
+		| ((state: { hovered: boolean; focused: boolean; pressed: boolean }) => Properties<Type>)
+		| Properties<Type>;
+};
 
 export type { Theme };
 export { breakpoints, useTheme } from "../theme";
-export { useYoshiki, type Stylable, type StylableHoverable } from "./generator";
+export { useYoshiki } from "./generator";
 export { Pressable } from "./hover";
 export * from "./units";
 

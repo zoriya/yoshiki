@@ -19,7 +19,7 @@ function findLastIndex<T>(
 	return -1;
 }
 
-class StyleRegistry {
+export class StyleRegistry {
 	private completed: string[] = [];
 	private rules: [string, string][] = [];
 	private styleElement: HTMLStyleElement | null = null;

@@ -4,10 +4,10 @@
 //
 
 import { Theme, breakpoints, useTheme } from "../theme";
-import { WithState, YoshikiStyle, CssProperties, Length } from "../type";
+import { WithState, YoshikiStyle, CssProperties } from "../type";
 import { isBreakpoints } from "../utils";
 import { useInsertionEffect } from "react";
-import { useStyleRegistry } from "./registry";
+import { StyleRegistry, useStyleRegistry } from "./registry";
 import { shorthandsFn } from "../shorthands";
 
 type _CssObject = {
@@ -35,41 +35,71 @@ const sanitize = (className: unknown) => {
 	return name.replaceAll(/[^\w-_]/g, "");
 };
 
-const generateAtomicCss = <Property extends number | boolean | string | undefined | Length>(
+type PreprocessFunction = (key: string, value: unknown) => [key: string, value: unknown][];
+
+const generateClass = (
 	key: string,
-	value: YoshikiStyle<Property>,
-	state: keyof WithState<undefined> | "normal",
-	{ theme }: { theme: Theme },
+	value: unknown,
+	context: string,
+	addCssContext: (className: string, block: string) => string,
+	preprocess?: PreprocessFunction,
 ): [string, string][] => {
-	if (key in shorthandsFn) {
-		// @ts-ignore `key` is not narrowed to `keyof typeof shorthandsFn` and value is not type safe.
-		const expanded = shorthandsFn[key as keyof typeof shorthandsFn](value);
-		return Object.entries(expanded)
-			.map(([eKey, eValue]) => generateAtomicCss(eKey, eValue, state, { theme }))
-			.flat();
+	if (preprocess) {
+		return preprocess(key, value).flatMap(([nKey, nValue]) =>
+			generateClass(nKey, nValue, context, addCssContext),
+		);
 	}
 
+	const className = `ys-${context}${key}-${sanitize(value)}`;
 	const cssKey = key.replace(/[A-Z]/g, "-$&").toLowerCase();
-	const statePrefix = state !== "normal" ? state + "_" : "";
+	return [[className, addCssContext(className, `{ ${cssKey}: ${value}; }`)]];
+};
 
+const generateAtomicCss = (
+	key: string,
+	value: YoshikiStyle<unknown>,
+	state: keyof WithState<undefined> | "normal",
+	{
+		theme,
+		preprocess,
+	}: {
+		theme: Theme;
+		preprocess?: PreprocessFunction;
+	},
+): [string, string][] => {
+	if (key in shorthandsFn) {
+		const expanded = shorthandsFn[key as keyof typeof shorthandsFn](value as any);
+		return Object.entries(expanded)
+			.map(([eKey, eValue]) => generateAtomicCss(eKey, eValue, state, { theme, preprocess }))
+			.flat();
+	}
 	if (typeof value === "function") {
 		value = value(theme);
 	}
-	if (isBreakpoints<Property>(value)) {
-		return Object.entries(value).map(([bp, bpValue]) => {
-			const className = `ys-${statePrefix}${bp}_${key}-${sanitize(bpValue)}`;
-			const bpWidth = breakpoints[bp as keyof typeof breakpoints];
-			return [
-				className,
-				`@media (min-width: ${bpWidth}px) { ${stateMapper[state](
-					className,
-				)} { ${cssKey}: ${bpValue}; } }`,
-			];
+
+	const statePrefix = state !== "normal" ? state + "_" : "";
+	if (isBreakpoints(value)) {
+		return Object.entries(value).flatMap(([bp, bpValue]) => {
+			return generateClass(
+				key,
+				bpValue,
+				`${statePrefix}${bp}_`,
+				(className, block) => {
+					const bpWidth = breakpoints[bp as keyof typeof breakpoints];
+					return `@media (min-width: ${bpWidth}px) { ${stateMapper[state](className)} ${block} }`;
+				},
+				preprocess,
+			);
 		});
 	}
 
-	const className = `ys-${statePrefix}${key}-${sanitize(value)}`;
-	return [[className, `${stateMapper[state](className)} { ${cssKey}: ${value}; }`]];
+	return generateClass(
+		key,
+		value,
+		statePrefix,
+		(className, block) => `${stateMapper[state](className)} ${block}`,
+		preprocess,
+	);
 };
 
 const dedupProperties = (...classList: (string[] | undefined)[]) => {
@@ -87,6 +117,43 @@ const dedupProperties = (...classList: (string[] | undefined)[]) => {
 	return Array.from(propMap.values()).join(" ");
 };
 
+export const yoshikiCssToClassNames = (
+	css: Record<string, unknown>,
+	classNames: string[] | undefined,
+	{
+		registry,
+		theme,
+		preprocess,
+	}: { registry: StyleRegistry; theme: Theme; preprocess?: PreprocessFunction },
+) => {
+	const { hover, focus, press, ...inline } = css;
+
+	const processStyles = (inlineStyle?: unknown, state?: keyof WithState<undefined>): string[] => {
+		if (!inlineStyle) return [];
+
+		// I'm sad that traverse is not a thing in JS.
+		const [localClassNames, localStyle] = Object.entries(inlineStyle).reduce<[string[], string[]]>(
+			(acc, [key, value]) => {
+				const n = generateAtomicCss(key, value, state ?? "normal", { theme, preprocess });
+				acc[0].push(...n.map((x) => x[0]));
+				acc[1].push(...n.map((x) => x[1]));
+				return acc;
+			},
+			[[], []],
+		);
+		registry.addRules(localClassNames, localStyle);
+		return localClassNames;
+	};
+
+	return dedupProperties(
+		processStyles(inline),
+		processStyles(hover, "hover"),
+		processStyles(focus, "focus"),
+		processStyles(press, "press"),
+		classNames,
+	);
+};
+
 export const useYoshiki = () => {
 	const theme = useTheme();
 	const registry = useStyleRegistry();
@@ -97,39 +164,9 @@ export const useYoshiki = () => {
 
 	return {
 		css: (css: CssObject, leftOverProps?: { className?: string }) => {
-			const { hover, focus, press, ...inline } = css;
 			const { className, ...leftOver } = leftOverProps ?? {};
-
-			const processStyles = (
-				inlineStyle?: _CssObject,
-				state?: keyof WithState<undefined>,
-			): string[] => {
-				if (!inlineStyle) return [];
-
-				// I'm sad that traverse is not a thing in JS.
-				const [localClassNames, localStyle] = Object.entries(inlineStyle).reduce<
-					[string[], string[]]
-				>(
-					(acc, [key, value]) => {
-						const n = generateAtomicCss(key, value, state ?? "normal", { theme });
-						acc[0].push(...n.map((x) => x[0]));
-						acc[1].push(...n.map((x) => x[1]));
-						return acc;
-					},
-					[[], []],
-				);
-				registry.addRules(localClassNames, localStyle);
-				return localClassNames;
-			};
-
 			return {
-				className: dedupProperties(
-					processStyles(inline),
-					processStyles(hover, "hover"),
-					processStyles(focus, "focus"),
-					processStyles(press, "press"),
-					className?.split(" "),
-				),
+				className: yoshikiCssToClassNames(css, className?.split(" "), { registry, theme }),
 				...leftOver,
 			};
 		},

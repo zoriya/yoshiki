@@ -2820,7 +2820,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-native-web@npm:@types/react-native@*, @types/react-native@npm:>= 0.70.0, @types/react-native@npm:~0.70.6":
+"@types/react-native@npm:>= 0.70.0, @types/react-native@npm:~0.70.6":
   version: 0.70.6
   resolution: "@types/react-native@npm:0.70.6"
   dependencies:
@@ -16251,7 +16251,6 @@ __metadata:
     "@types/node": 18.x.x
     "@types/react": 18.x.x
     "@types/react-native": ">= 0.70.0"
-    "@types/react-native-web": "npm:@types/react-native@*"
     react: 18.x.x
     react-dom: ^18.2.0
     react-native-web: ^0.18.10

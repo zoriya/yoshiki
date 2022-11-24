@@ -6,7 +6,7 @@
 import { StatusBar } from "expo-status-bar";
 import { Text, View, Pressable } from "react-native";
 import { registerRootComponent } from "expo";
-import { Stylable, useYoshiki, px } from "yoshiki";
+import { Stylable, useYoshiki, px } from "yoshiki/native";
 import { H1 } from "@expo/html-elements";
 
 const CustomBox = ({ color, ...props }: { color: string } & Stylable) => {

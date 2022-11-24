@@ -1,6 +1,6 @@
 {
 	"name": "yoshiki",
-	"version": "0.1.5",
+	"version": "0.1.6",
 	"author": "Zoe Roux <zoe.roux@sdg.moe> (https://github.com/AnonymusRaccoon)",
 	"license": "MIT",
 	"keywords": [
@@ -26,8 +26,7 @@
 	"dependencies": {
 		"@types/node": "18.x.x",
 		"@types/react": "18.x.x",
-		"@types/react-native": ">= 0.70.0",
-		"@types/react-native-web": "npm:@types/react-native@*"
+		"@types/react-native": ">= 0.70.0"
 	},
 	"peerDependencies": {
 		"react": "*",
