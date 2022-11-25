@@ -26,7 +26,8 @@
 	"dependencies": {
 		"@types/node": "18.x.x",
 		"@types/react": "18.x.x",
-		"@types/react-native": ">= 0.70.0"
+		"@types/react-native": ">= 0.70.0",
+		"inline-style-prefixer": "^7.0.0"
 	},
 	"peerDependencies": {
 		"react": "*",
@@ -42,6 +43,7 @@
 		}
 	},
 	"devDependencies": {
+		"@types/inline-style-prefixer": "^5.0.0",
 		"react": "18.x.x",
 		"react-dom": "^18.2.0",
 		"react-native-web": "^0.18.10",

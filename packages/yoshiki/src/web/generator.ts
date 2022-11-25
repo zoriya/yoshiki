@@ -3,10 +3,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
+import { useInsertionEffect } from "react";
+import { prefix } from "inline-style-prefixer";
 import { Theme, breakpoints, useTheme } from "../theme";
 import { WithState, YoshikiStyle, CssProperties } from "../type";
 import { isBreakpoints } from "../utils";
-import { useInsertionEffect } from "react";
 import { StyleRegistry, useStyleRegistry } from "./registry";
 import { shorthandsFn } from "../shorthands";
 
@@ -26,8 +27,8 @@ const stateMapper: {
 	// :focus-visible is a pseudo-selector that only enables the focus ring when using the keyboard.
 	focus: (cn) => `.${cn}:focus-visible`,
 	// The body.noHover will be set when the users uses a touch screen instead of a mouse. This is used to only enable hover with the mouse.
+	// The where is used to decrease the rule specificity (make it the same as juste .cn:hover)
 	hover: (cn) => `:where(body:not(.noHover)) .${cn}:hover`,
-	/* ["hover", ":hover"], */
 };
 
 const sanitize = (className: unknown) => {
@@ -36,23 +37,35 @@ const sanitize = (className: unknown) => {
 };
 
 type PreprocessFunction = (key: string, value: unknown) => [key: string, value: unknown][];
+type PreprocessBlockFunction = (block: { [key: string]: unknown }) => { [key: string]: unknown };
 
 const generateClass = (
 	key: string,
 	value: unknown,
 	context: string,
 	addCssContext: (className: string, block: string) => string,
-	preprocess?: PreprocessFunction,
+	{
+		preprocess,
+		preprocessBlock,
+	}: { preprocess?: PreprocessFunction; preprocessBlock?: PreprocessBlockFunction },
 ): [string, string][] => {
 	if (preprocess) {
 		return preprocess(key, value).flatMap(([nKey, nValue]) =>
-			generateClass(nKey, nValue, context, addCssContext),
+			generateClass(nKey, nValue, context, addCssContext, { preprocessBlock }),
 		);
 	}
 
+	preprocessBlock ??= (id) => id;
 	const className = `ys-${context}${key}-${sanitize(value)}`;
-	const cssKey = key.replace(/[A-Z]/g, "-$&").toLowerCase();
-	return [[className, addCssContext(className, `{ ${cssKey}: ${value}; }`)]];
+	const block = Object.entries(prefix(preprocessBlock({ [key]: value })))
+		.flatMap(([nKey, nValue]) => {
+			const cssKey = nKey.replace(/[A-Z]/g, "-$&").toLowerCase();
+			return Array.isArray(nValue)
+				? nValue.map((x) => `${cssKey}: ${x};`)
+				: [`${cssKey}: ${nValue};`];
+		})
+		.join(" ");
+	return [[className, addCssContext(className, `{ ${block} }`)]];
 };
 
 const generateAtomicCss = (
@@ -62,15 +75,19 @@ const generateAtomicCss = (
 	{
 		theme,
 		preprocess,
+		preprocessBlock,
 	}: {
 		theme: Theme;
 		preprocess?: PreprocessFunction;
+		preprocessBlock?: PreprocessBlockFunction;
 	},
 ): [string, string][] => {
 	if (key in shorthandsFn) {
 		const expanded = shorthandsFn[key as keyof typeof shorthandsFn](value as any);
 		return Object.entries(expanded)
-			.map(([eKey, eValue]) => generateAtomicCss(eKey, eValue, state, { theme, preprocess }))
+			.map(([eKey, eValue]) =>
+				generateAtomicCss(eKey, eValue, state, { theme, preprocess, preprocessBlock }),
+			)
 			.flat();
 	}
 	if (typeof value === "function") {
@@ -88,7 +105,7 @@ const generateAtomicCss = (
 					const bpWidth = breakpoints[bp as keyof typeof breakpoints];
 					return `@media (min-width: ${bpWidth}px) { ${stateMapper[state](className)} ${block} }`;
 				},
-				preprocess,
+				{ preprocess, preprocessBlock },
 			);
 		});
 	}
@@ -98,7 +115,7 @@ const generateAtomicCss = (
 		value,
 		statePrefix,
 		(className, block) => `${stateMapper[state](className)} ${block}`,
-		preprocess,
+		{ preprocess, preprocessBlock },
 	);
 };
 
@@ -124,7 +141,13 @@ export const yoshikiCssToClassNames = (
 		registry,
 		theme,
 		preprocess,
-	}: { registry: StyleRegistry; theme: Theme; preprocess?: PreprocessFunction },
+		preprocessBlock,
+	}: {
+		registry: StyleRegistry;
+		theme: Theme;
+		preprocess?: PreprocessFunction;
+		preprocessBlock?: PreprocessBlockFunction;
+	},
 ) => {
 	const { hover, focus, press, ...inline } = css;
 
@@ -134,7 +157,11 @@ export const yoshikiCssToClassNames = (
 		// I'm sad that traverse is not a thing in JS.
 		const [localClassNames, localStyle] = Object.entries(inlineStyle).reduce<[string[], string[]]>(
 			(acc, [key, value]) => {
-				const n = generateAtomicCss(key, value, state ?? "normal", { theme, preprocess });
+				const n = generateAtomicCss(key, value, state ?? "normal", {
+					theme,
+					preprocess,
+					preprocessBlock
+				});
 				acc[0].push(...n.map((x) => x[0]));
 				acc[1].push(...n.map((x) => x[1]));
 				return acc;

@@ -11,9 +11,8 @@ import createReactDOMStyle from "react-native-web/dist/exports/StyleSheet/compil
 import { yoshikiCssToClassNames } from "../web/generator";
 import { useStyleRegistry } from "../web";
 
-const rnwPreprocess = (prop: string, value: unknown) => {
-	const styles = createReactDOMStyle({ [prop]: value });
-	return Object.entries(styles);
+const rnwPreprocess = (block: Record<string, unknown>) => {
+	return createReactDOMStyle(block);
 };
 
 export const useYoshiki = () => {
@@ -36,7 +35,7 @@ export const useYoshiki = () => {
 			const classNames = yoshikiCssToClassNames(css, overrides?.split(" "), {
 				registry,
 				theme,
-				preprocess: rnwPreprocess,
+				preprocessBlock: rnwPreprocess,
 			});
 			return { style: { $$css: true, yoshiki: classNames } as Style };
 		},

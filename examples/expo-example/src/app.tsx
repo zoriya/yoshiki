@@ -51,7 +51,6 @@ function App() {
 	return (
 		<View
 			{...css({
-				// @ts-ignore
 				flex: 1,
 				backgroundColor: "#fff",
 				alignItems: "center",

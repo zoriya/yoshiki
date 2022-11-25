@@ -33,13 +33,14 @@ export class StyleRegistry {
 	}
 
 	addRule(key: string, rule: string) {
+		if (this.rules.find(([eKey]) => key === eKey)) return;
 		this.rules.push([key, rule]);
 	}
 
 	addRules(keys: string[], rules: string[]) {
 		// I'm sad that sequence is not a thing...
 		for (let i = 0; i < keys.length; i++) {
-			this.rules.push([keys[i], rules[i]]);
+			this.addRule(keys[i], rules[i]);
 		}
 	}
 
