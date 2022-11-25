@@ -4,7 +4,7 @@
 //
 
 import { StatusBar } from "expo-status-bar";
-import { Text, View, Pressable } from "react-native";
+import { Text, View, Pressable, TextProps } from "react-native";
 import { registerRootComponent } from "expo";
 import { Stylable, useYoshiki, px } from "yoshiki/native";
 import { H1 } from "@expo/html-elements";
@@ -45,6 +45,20 @@ const BoxWithoutProps = (props: Stylable) => {
 	);
 };
 
+const P = (props: TextProps) => {
+	const { css } = useYoshiki();
+	return (
+		<Text
+			{...css(
+				{
+					fontFamily: "toto",
+				},
+				props
+			)}
+		/>
+	);
+};
+
 function App() {
 	const { css } = useYoshiki();
 
@@ -60,6 +74,12 @@ function App() {
 			<Text>Open up App.tsx to start working on your app!</Text>
 			<CustomBox color="black" {...css({ borderColor: "red", borderWidth: px(3) })} />
 			<BoxWithoutProps {...css({ borderColor: "red", borderWidth: px(3) })} />
+			<P
+				accessibilityLabel="toto"
+				style={[undefined, false, { color: "red" }, [{ color: "green" }, false]]}
+			>
+				Test
+			</P>
 			<StatusBar style="auto" />
 		</View>
 	);

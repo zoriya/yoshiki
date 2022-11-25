@@ -6,7 +6,7 @@
 import { useInsertionEffect } from "react";
 import { prefix } from "inline-style-prefixer";
 import { Theme, breakpoints, useTheme } from "../theme";
-import { WithState, YoshikiStyle, CssProperties } from "../type";
+import { WithState, YoshikiStyle, CssProperties, StyleList, processStyleList } from "../type";
 import { isBreakpoints } from "../utils";
 import { StyleRegistry, useStyleRegistry } from "./registry";
 import { shorthandsFn } from "../shorthands";
@@ -160,7 +160,7 @@ export const yoshikiCssToClassNames = (
 				const n = generateAtomicCss(key, value, state ?? "normal", {
 					theme,
 					preprocess,
-					preprocessBlock
+					preprocessBlock,
 				});
 				acc[0].push(...n.map((x) => x[0]));
 				acc[1].push(...n.map((x) => x[1]));
@@ -190,12 +190,16 @@ export const useYoshiki = () => {
 	}, [registry]);
 
 	return {
-		css: (css: CssObject, leftOverProps?: { className?: string }) => {
+		css: <Leftover>(
+			cssList: StyleList<CssObject>,
+			leftOverProps?: Leftover & { className?: string },
+		): { className: string } & Omit<Leftover, "className"> => {
+			const css = processStyleList(cssList);
 			const { className, ...leftOver } = leftOverProps ?? {};
 			return {
 				className: yoshikiCssToClassNames(css, className?.split(" "), { registry, theme }),
 				...leftOver,
-			};
+			} as any;
 		},
 		theme,
 	};

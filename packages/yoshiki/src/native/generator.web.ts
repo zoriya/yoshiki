@@ -3,9 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 import { useInsertionEffect } from "react";
-import { ImageStyle, TextStyle, ViewStyle } from "react-native";
+import { ImageStyle, RegisteredStyle, StyleProp, TextStyle, ViewStyle } from "react-native";
 import { useTheme } from "../theme";
-import { WithState } from "../type";
+import { processStyleList, StyleList, WithState } from "../type";
 import { EnhancedStyle } from "./type";
 import createReactDOMStyle from "react-native-web/dist/exports/StyleSheet/compiler/createReactDOMStyle";
 import { yoshikiCssToClassNames } from "../web/generator";
@@ -27,17 +27,23 @@ export const useYoshiki = () => {
 		css: <
 			Style extends ViewStyle | TextStyle | ImageStyle,
 			State extends Partial<WithState<EnhancedStyle<Style>>> | Record<string, never>,
+			Leftover,
 		>(
-			css: EnhancedStyle<Style> & State,
-			leftOvers?: { style?: Style },
-		): { style: Style } => {
-			const overrides = leftOvers?.style?.$$css ? leftOvers.style.yoshiki : undefined;
+			cssList: StyleList<EnhancedStyle<Style> & State>,
+			leftOvers?: { style?: StyleProp<Style> } & Leftover,
+		): { style: Style } & Omit<Leftover, "style"> => {
+			const css = processStyleList(cssList);
+			const inline = processStyleList<Style | RegisteredStyle<Style>>(leftOvers?.style);
+			const overrides = "$$css" in inline && inline.$$css ? inline.yoshiki : undefined;
 			const classNames = yoshikiCssToClassNames(css, overrides?.split(" "), {
 				registry,
 				theme,
 				preprocessBlock: rnwPreprocess,
 			});
-			return { style: { $$css: true, yoshiki: classNames } as Style };
+			return {
+				...leftOvers,
+				style: [inline, { $$css: true, yoshiki: classNames } as Style],
+			} as any;
 		},
 		theme,
 	};

@@ -28,6 +28,15 @@ export const hasState = <Style>(obj: unknown): obj is WithState<Style> => {
 	return "hover" in obj || "focus" in obj || "press" in obj;
 };
 
+const isReadonlyArray = (array: unknown): array is ReadonlyArray<unknown> => Array.isArray(array);
+
+export type StyleList<T> = T | undefined | null | false | ReadonlyArray<StyleList<T>>;
+export const processStyleList = <Style>(los: StyleList<Style>): Partial<Style> => {
+	if (isReadonlyArray(los))
+		return los.reduce((acc, x) => ({ ...acc, ...processStyleList(x) }), {});
+	return los ? los : {};
+};
+
 // dummy type only used for the API.
 export type Length = { a: 1 };
 export type CssProperties = _CssProperties<0 | Length | string>;

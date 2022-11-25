@@ -3,9 +3,16 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import { ViewStyle, TextStyle, ImageStyle, useWindowDimensions } from "react-native";
+import { ViewStyle, TextStyle, ImageStyle, StyleProp, useWindowDimensions } from "react-native";
 import { breakpoints, Theme, useTheme } from "../theme";
-import { Breakpoints, WithState, YoshikiStyle, hasState } from "../type";
+import {
+	Breakpoints,
+	WithState,
+	YoshikiStyle,
+	hasState,
+	StyleList,
+	processStyleList,
+} from "../type";
 import { isBreakpoints } from "../utils";
 import { shorthandsFn } from "../shorthands";
 import { EnhancedStyle, YsStyleProps } from "./type";
@@ -17,16 +24,13 @@ const useBreakpoint = (): number => {
 	return idx - 1;
 };
 
-const propertyMapper = <
-	Property extends number | string | boolean | undefined | Property[] | object,
->(
+const propertyMapper = (
 	key: string,
-	value: YoshikiStyle<Property>,
+	value: YoshikiStyle<unknown>,
 	{ breakpoint, theme }: { breakpoint: number; theme: Theme },
-): [string, number | string | boolean | undefined | object][] => {
+): [string, unknown][] => {
 	if (key in shorthandsFn) {
-		// @ts-ignore `key` is not narrowed to `keyof typeof shorthandsFn` and value is not type safe.
-		const expanded = shorthandsFn[key as keyof typeof shorthandsFn](value);
+		const expanded = shorthandsFn[key as keyof typeof shorthandsFn](value as any);
 		return Object.entries(expanded)
 			.map(([eKey, eValue]) => propertyMapper(eKey, eValue, { breakpoint, theme }))
 			.flat();
@@ -35,8 +39,8 @@ const propertyMapper = <
 	if (typeof value === "function") {
 		value = value(theme);
 	}
-	if (isBreakpoints<Property>(value)) {
-		const bpKeys = Object.keys(breakpoints) as Array<keyof Breakpoints<Property>>;
+	if (isBreakpoints(value)) {
+		const bpKeys = Object.keys(breakpoints) as Array<keyof Breakpoints<unknown>>;
 		for (let i = breakpoint; i >= 0; i--) {
 			if (bpKeys[i] in value) {
 				const bpVal = value[bpKeys[i]];
@@ -56,19 +60,21 @@ export const useYoshiki = () => {
 		css: <
 			Style extends ViewStyle | TextStyle | ImageStyle,
 			State extends Partial<WithState<EnhancedStyle<Style>>> | Record<string, never>,
+			Leftover,
 		>(
-			css: EnhancedStyle<Style> & State,
-			leftOvers?: { style?: Style },
-		): YsStyleProps<Style, State> => {
+			cssList: StyleList<EnhancedStyle<Style> & State>,
+			leftOvers?: { style?: StyleProp<Style> } & Leftover,
+		): YsStyleProps<Style, State> & Omit<Leftover, "style"> => {
+			const css = processStyleList(cssList);
 			const { style, ...leftOverProps } = leftOvers ?? {};
 
-			const processStyle = (styleList: EnhancedStyle<Style>): Style => {
-				// @ts-ignore propertyMapper always returns key that are valid for the current Style
-				return Object.fromEntries(
+			const processStyle = (styleList: Record<string, YoshikiStyle<unknown>>): Style => {
+				const ret = Object.fromEntries(
 					Object.entries(styleList).flatMap(([key, value]) =>
 						propertyMapper(key, value, { breakpoint, theme }),
 					),
 				);
+				return ret as unknown as Style;
 			};
 
 			if (hasState<Style>(css)) {
@@ -77,26 +83,23 @@ export const useYoshiki = () => {
 					style: (state: { hovered: boolean; focused: boolean; pressed: boolean }) => Style;
 				} = {
 					style: ({ hovered, focused, pressed }) => ({
-						// @ts-ignore EnhancedStyle<Style> is not assignable to EnhancedStyle<Style>...
 						...processStyle(inline),
 						...(hovered ? processStyle(hover) : {}),
 						...(focused ? processStyle(focus) : {}),
 						...(pressed ? processStyle(press) : {}),
-						...style,
+						...processStyleList(style),
 					}),
 					...leftOverProps,
 				};
 
-				// @ts-ignore Ts is not able to identify the type of the return type (the condition throws him off).
-				return ret;
+				return ret as any;
 			} else {
 				const ret: { style: Style } = {
-					style: { ...processStyle(css), ...style },
+					style: { ...processStyle(css), ...processStyleList(style) },
 					...leftOverProps,
 				};
 
-				// @ts-ignore Ts is not able to identify the type of the return type (the condition throws him off).
-				return ret;
+				return ret as YsStyleProps<Style, State> & Leftover;
 			}
 		},
 		theme: theme,
