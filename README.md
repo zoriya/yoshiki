@@ -2,12 +2,13 @@
 
 ## Features
 
-- Same interface for React and React Native
+- Same interface for React, React Native and React Native Web
 - Universal API working for builtins, any component library or your own
 - Breakpoints as objects
 - User defined theme support
 - Shorthands (`m` for `margin`, `paddingX` for `paddingLeft` and `paddingRight`...)
 - Atomic CSS generation
+- Automatic vendor prefixing
 - SSR support
 
 ## Installation
@@ -24,7 +25,7 @@ or
 ## Usage
 
 ```tsx
-import { Stylable, useYoshiki } from "yoshiki/web";
+import { Stylable, useYoshiki } from "yoshiki";
 
 const ColoredDiv = ({ color }: { color: string }) => {
 	const { css } = useYoshiki();
@@ -223,54 +224,38 @@ const AppName = () => {
 };
 ```
 
-### Native independence
+## API
 
-You can create the same page layout for React and React Native but use native features of both. For that,
-include `yoshiki` instead of `yoshiki/native` or `yoshiki/web`. It will allow you to use the css function
-with only css styles available in both React and React Native.
-To support units in spacing or lengths, you can use the units functions:
+### useYoshiki
 
-```tsx
-import { useYoshiki, px, percent, em } from "yoshiki";
-import { Div, P, Span } from "my-super-component-lib";
+The most used function will be `useYoshiki`:
 
-const App = () => {
-	const { css } = useYoshiki();
-
-	return (
-		<Div
-			{...css({
-				backgroundColor: "white",
-				p: px(12),
-				margin: em(2),
-				height: percent(50);
-			})}
-		>
-			<P>
-				Hello from <Span {...css({ color: "red" })}>Yoshiki</Span>
-			</P>
-		</Div>
-	);
-};
+```typescript
+const { css, theme } = useYoshiki;
 ```
 
-This will use the native version on React Native and the web version on React for web, so you can have all the benefits
-of each environment without its limitations. The downside is that your components need to pass stylables props to the
-DOM (so `className` and `style` on the web and `style` on React Native). React Native Web does not allow one to use the `className`,
-so it won't work with it. Yoshiki exposes the `splitRender` function to easily create components that will support this:
+The `theme` variable is the one returned from `useTheme` and the css function has the following signature:
 
-```tsx
-import { splitRender } from "yoshiki";
-import { Text } from "react-native";
-import { ReactNode } from "react";
-
-export const P = splitRender<HTMLParagraphElement, Text, { children: ReactNode }>(
-	function _PWeb(props, ref) {
-		return <div ref={ref} {...props}></div>;
-	},
-	function _PNat(props, ref) {
-		return <Text ref={ref} {...props}></View>;
-	},
-);
-
+```typescript
+css: (css: CssObject, leftovers: object) => Props
 ```
+
+The first parameter is a css object, in react web that means a dictionary of css key-values. On React Native that means
+a `ViewStyle`, a `TextStyle` or an `ImageStyle`. Yoshiki will unsure type safety by returning the style object needed 
+for your arguments. 
+
+The css object can also take the keys `hover`, `focus` and `press`, and it will apply the style object given as a value
+to the object only when it should.
+
+
+The leftover parameter is here to allow your component to be customized by yoshiki. See [Customize your own components](#customize-your-own-components)
+for more details.
+
+
+### useTheme
+
+```typescript
+const theme = useTheme();
+```
+
+Simply return the theme object you defined with a Theme Provider see [Theme](#theme) for more details.
