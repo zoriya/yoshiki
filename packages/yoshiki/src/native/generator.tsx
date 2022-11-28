@@ -3,19 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import { ViewStyle, TextStyle, ImageStyle, StyleProp, useWindowDimensions } from "react-native";
+import { useWindowDimensions } from "react-native";
 import { breakpoints, Theme, useTheme } from "../theme";
-import {
-	Breakpoints,
-	WithState,
-	YoshikiStyle,
-	hasState,
-	StyleList,
-	processStyleList,
-} from "../type";
+import { Breakpoints, YoshikiStyle, hasState, processStyleList } from "../type";
 import { isBreakpoints } from "../utils";
 import { shorthandsFn } from "../shorthands";
-import { EnhancedStyle, YsStyleProps } from "./type";
+import { StyleFunc, NativeCssFunc } from "./type";
 
 const useBreakpoint = (): number => {
 	const { width } = useWindowDimensions();
@@ -56,52 +49,52 @@ export const useYoshiki = () => {
 	const breakpoint = useBreakpoint();
 	const theme = useTheme();
 
-	return {
-		css: <
-			Style extends ViewStyle | TextStyle | ImageStyle,
-			State extends Partial<WithState<EnhancedStyle<Style>>> | Record<string, never>,
-			Leftover,
-		>(
-			cssList: StyleList<EnhancedStyle<Style> & State>,
-			leftOvers?: { style?: StyleProp<Style> } & Leftover,
-		): YsStyleProps<Style, State> & Omit<Leftover, "style"> => {
-			const css = processStyleList(cssList);
-			const { style, ...leftOverProps } = leftOvers ?? {};
+	const css: NativeCssFunc = (cssList, leftOvers) => {
+		const css = processStyleList(cssList);
 
-			const processStyle = (styleList: Record<string, YoshikiStyle<unknown>>): Style => {
-				const ret = Object.fromEntries(
-					Object.entries(styleList).flatMap(([key, value]) =>
-						propertyMapper(key, value, { breakpoint, theme }),
-					),
-				);
-				return ret as unknown as Style;
+		const processStyle = (styleList: Record<string, YoshikiStyle<unknown>>) => {
+			const ret = Object.fromEntries(
+				Object.entries(styleList).flatMap(([key, value]) =>
+					propertyMapper(key, value, { breakpoint, theme }),
+				),
+			);
+			return ret;
+		};
+
+		if (hasState<Record<string, unknown>>(css)) {
+			const { hover, focus, press, ...inline } = css;
+			const ret: StyleFunc<unknown> = ({ hovered, focused, pressed }) => ({
+				...processStyle(inline),
+				...(hovered ? processStyle(hover) : {}),
+				...(focused ? processStyle(focus) : {}),
+				...(pressed ? processStyle(press) : {}),
+				...(leftOvers?.style
+					? typeof leftOvers?.style === "function"
+						? processStyleList(leftOvers?.style({ hovered, focused, pressed }))
+						: processStyleList(leftOvers?.style)
+					: {}),
+			});
+
+			return {
+				...leftOvers,
+				style: ret,
+			};
+		} else {
+			const loStyles =
+				leftOvers?.style && typeof leftOvers?.style !== "function"
+					? processStyleList(leftOvers.style)
+					: {};
+			const ret = {
+				...leftOvers,
+				style: { ...processStyle(css), ...loStyles },
 			};
 
-			if (hasState<Style>(css)) {
-				const { hover, focus, press, ...inline } = css;
-				const ret: {
-					style: (state: { hovered: boolean; focused: boolean; pressed: boolean }) => Style;
-				} = {
-					style: ({ hovered, focused, pressed }) => ({
-						...processStyle(inline),
-						...(hovered ? processStyle(hover) : {}),
-						...(focused ? processStyle(focus) : {}),
-						...(pressed ? processStyle(press) : {}),
-						...processStyleList(style),
-					}),
-					...leftOverProps,
-				};
+			return ret as any;
+		}
+	};
 
-				return ret as any;
-			} else {
-				const ret: { style: Style } = {
-					style: { ...processStyle(css), ...processStyleList(style) },
-					...leftOverProps,
-				};
-
-				return ret as YsStyleProps<Style, State> & Leftover;
-			}
-		},
+	return {
+		css,
 		theme: theme,
 	};
 };

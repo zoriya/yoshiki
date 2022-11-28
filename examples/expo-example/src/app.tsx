@@ -14,7 +14,9 @@ const CustomBox = ({ color, ...props }: { color: string } & Stylable) => {
 
 	return (
 		<View {...css({ bg: color, alignItems: "center" }, props)}>
-			<Text {...css({ color: "white" })}>Text inside the custom black box.</Text>
+			<Text {...css({ color: "white", fontWeight: (theme) => "900" })}>
+				Text inside the custom black box.
+			</Text>
 		</View>
 	);
 };
@@ -53,7 +55,7 @@ const P = (props: TextProps) => {
 				{
 					fontFamily: "toto",
 				},
-				props
+				props,
 			)}
 		/>
 	);

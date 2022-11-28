@@ -32,8 +32,7 @@ const isReadonlyArray = (array: unknown): array is ReadonlyArray<unknown> => Arr
 
 export type StyleList<T> = T | undefined | null | false | ReadonlyArray<StyleList<T>>;
 export const processStyleList = <Style>(los: StyleList<Style>): Partial<Style> => {
-	if (isReadonlyArray(los))
-		return los.reduce((acc, x) => ({ ...acc, ...processStyleList(x) }), {});
+	if (isReadonlyArray(los)) return los.reduce((acc, x) => ({ ...acc, ...processStyleList(x) }), {});
 	return los ? los : {};
 };
 
