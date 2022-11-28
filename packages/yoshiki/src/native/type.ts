@@ -31,29 +31,29 @@ type AddLO<T, LO> = [LO] extends [never] ? T : Omit<LO, "style"> & T;
 
 declare function nativeCss<Leftover = never>(
 	cssList: StyleList<EnhancedStyle<ViewStyle>>,
-	leftOvers?: Leftover & { style?: StyleProp<ViewStyle> },
+	leftOvers?: Leftover & { style?: StyleProp<ViewStyle> | null },
 ): AddLO<{ style?: ViewStyle }, Leftover>;
 declare function nativeCss<Leftover = never>(
 	cssList: StyleList<EnhancedStyle<ViewStyle> & Partial<WithState<EnhancedStyle<ViewStyle>>>>,
-	leftOvers?: Leftover & { style?: StyleProp<ViewStyle> | StyleFunc<StyleProp<ViewStyle>> },
+	leftOvers?: Leftover & { style?: StyleProp<ViewStyle> | StyleFunc<StyleProp<ViewStyle>> | null },
 ): AddLO<{ style?: StyleFunc<ViewStyle> }, Leftover>;
 
 declare function nativeCss<Leftover = never>(
 	cssList: StyleList<EnhancedStyle<TextStyle>>,
-	leftOvers?: Leftover & { style?: StyleProp<TextStyle> },
+	leftOvers?: Leftover & { style?: StyleProp<TextStyle> | null },
 ): AddLO<{ style?: TextStyle }, Leftover>;
 declare function nativeCss<Leftover = never>(
 	cssList: StyleList<EnhancedStyle<TextStyle> & Partial<WithState<EnhancedStyle<TextStyle>>>>,
-	leftOvers?: Leftover & { style?: StyleProp<TextStyle> | StyleFunc<StyleProp<TextStyle>> },
+	leftOvers?: Leftover & { style?: StyleProp<TextStyle> | StyleFunc<StyleProp<TextStyle>> | null },
 ): AddLO<{ style?: StyleFunc<TextStyle> }, Leftover>;
 
 declare function nativeCss<Leftover = never>(
 	cssList: StyleList<EnhancedStyle<ImageStyle>>,
-	leftOvers?: Leftover & { style?: StyleProp<ImageStyle> },
+	leftOvers?: Leftover & { style?: StyleProp<ImageStyle> | null },
 ): AddLO<{ style?: ImageStyle }, Leftover>;
 declare function nativeCss<Leftover = never>(
 	cssList: StyleList<EnhancedStyle<ImageStyle> & Partial<WithState<EnhancedStyle<ImageStyle>>>>,
-	leftOvers?: Leftover & { style?: StyleProp<ImageStyle> | StyleFunc<StyleProp<ImageStyle>> },
+	leftOvers?: Leftover & { style?: StyleProp<ImageStyle> | StyleFunc<StyleProp<ImageStyle>> | null },
 ): AddLO<{ style?: StyleFunc<ImageStyle> }, Leftover>;
 
 export type NativeCssFunc = typeof nativeCss;
