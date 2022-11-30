@@ -33,6 +33,7 @@ const stateMapper: {
 
 const sanitize = (className: unknown) => {
 	const name = typeof className === "string" ? className : JSON.stringify(className);
+	if (name === undefined) return "undefined";
 	return name.replaceAll(/[^\w-_]/g, "");
 };
 
@@ -54,6 +55,8 @@ const generateClass = (
 			generateClass(nKey, nValue, context, addCssContext, { preprocessBlock }),
 		);
 	}
+
+	if (value === undefined) return [];
 
 	preprocessBlock ??= (id) => id;
 	const className = `ys-${context}${key}-${sanitize(value)}`;
