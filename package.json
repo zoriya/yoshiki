@@ -7,6 +7,7 @@
 	"private": true,
 	"scripts": {
 		"build": "yarn workspace yoshiki build",
+		"watch": "yarn workspace yoshiki watch",
 		"publish": "yarn build && yarn workspace yoshiki npm publish",
 		"next": "yarn workspace next-example dev",
 		"expo": "yarn workspace expo-example dev",

@@ -105,7 +105,7 @@ export class StyleRegistry {
 		}
 
 		const lines = existingStyle.split("\n");
-		const comReg = new RegExp("/*(\\d+)*/");
+		const comReg = new RegExp("/\\*(\\d+)\\*/");
 
 		for (const [i, chunk] of newChunks.entries()) {
 			if (!chunk.length) continue;
@@ -127,7 +127,7 @@ export class StyleRegistry {
 			}
 		}
 
-		return existingStyle;
+		return lines.join("\n");
 	}
 
 	splitInChunks(classes: string[]): string[][] {
