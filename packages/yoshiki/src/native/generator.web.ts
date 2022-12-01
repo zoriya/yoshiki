@@ -8,6 +8,7 @@ import { useTheme } from "../theme";
 import { processStyleList, StyleList } from "../type";
 import { NativeCssFunc } from "./type";
 import createReactDOMStyle from "react-native-web/dist/exports/StyleSheet/compiler/createReactDOMStyle";
+import preprocess from "react-native-web/dist/exports/StyleSheet/preprocess";
 import { yoshikiCssToClassNames } from "../web/generator";
 import { useStyleRegistry } from "../web";
 
@@ -35,6 +36,7 @@ export const useYoshiki = () => {
 				registry,
 				theme,
 				preprocessBlock: rnwPreprocess,
+				preprocess
 			});
 			return [inline, { $$css: true, yoshiki: classNames }];
 		};

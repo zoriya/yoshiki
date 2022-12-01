@@ -10,3 +10,10 @@ declare module "react-native-web/dist/exports/StyleSheet/compiler/createReactDOM
 	) => Record<string, unknown>;
 	export default createReactDOMStyle;
 }
+
+declare module "react-native-web/dist/exports/StyleSheet/preprocess" {
+	const preprocess: (
+		style: Record<string, unknown>,
+	) => Record<string, unknown>;
+	export default createReactDOMStyle;
+}

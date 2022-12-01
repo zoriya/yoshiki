@@ -37,7 +37,6 @@ const sanitize = (className: unknown) => {
 	return name.replaceAll(/[^\w-_]/g, "");
 };
 
-type PreprocessFunction = (key: string, value: unknown) => [key: string, value: unknown][];
 type PreprocessBlockFunction = (block: { [key: string]: unknown }) => { [key: string]: unknown };
 
 const generateClass = (
@@ -45,17 +44,8 @@ const generateClass = (
 	value: unknown,
 	context: string,
 	addCssContext: (className: string, block: string) => string,
-	{
-		preprocess,
-		preprocessBlock,
-	}: { preprocess?: PreprocessFunction; preprocessBlock?: PreprocessBlockFunction },
+	preprocessBlock?: PreprocessBlockFunction,
 ): [string, string][] => {
-	if (preprocess) {
-		return preprocess(key, value).flatMap(([nKey, nValue]) =>
-			generateClass(nKey, nValue, context, addCssContext, { preprocessBlock }),
-		);
-	}
-
 	if (value === undefined) return [];
 
 	preprocessBlock ??= (id) => id;
@@ -77,20 +67,16 @@ const generateAtomicCss = (
 	state: keyof WithState<undefined> | "normal",
 	{
 		theme,
-		preprocess,
 		preprocessBlock,
 	}: {
 		theme: Theme;
-		preprocess?: PreprocessFunction;
 		preprocessBlock?: PreprocessBlockFunction;
 	},
 ): [string, string][] => {
 	if (key in shorthandsFn) {
 		const expanded = shorthandsFn[key as keyof typeof shorthandsFn](value as any);
 		return Object.entries(expanded)
-			.map(([eKey, eValue]) =>
-				generateAtomicCss(eKey, eValue, state, { theme, preprocess, preprocessBlock }),
-			)
+			.map(([eKey, eValue]) => generateAtomicCss(eKey, eValue, state, { theme, preprocessBlock }))
 			.flat();
 	}
 	if (typeof value === "function") {
@@ -108,7 +94,7 @@ const generateAtomicCss = (
 					const bpWidth = breakpoints[bp as keyof typeof breakpoints];
 					return `@media (min-width: ${bpWidth}px) { ${stateMapper[state](className)} ${block} }`;
 				},
-				{ preprocess, preprocessBlock },
+				preprocessBlock,
 			);
 		});
 	}
@@ -118,7 +104,7 @@ const generateAtomicCss = (
 		value,
 		statePrefix,
 		(className, block) => `${stateMapper[state](className)} ${block}`,
-		{ preprocess, preprocessBlock },
+		preprocessBlock,
 	);
 };
 
@@ -138,7 +124,11 @@ const dedupProperties = (...classList: (string[] | undefined)[]) => {
 };
 
 export const yoshikiCssToClassNames = (
-	css: Record<string, unknown>,
+	css: Record<string, unknown> & {
+		hover?: Record<string, unknown>;
+		focus?: Record<string, unknown>;
+		press?: Record<string, unknown>;
+	},
 	classNames: string[] | undefined,
 	{
 		registry,
@@ -148,21 +138,24 @@ export const yoshikiCssToClassNames = (
 	}: {
 		registry: StyleRegistry;
 		theme: Theme;
-		preprocess?: PreprocessFunction;
+		preprocess?: (style: Record<string, unknown>) => Record<string, unknown>;
 		preprocessBlock?: PreprocessBlockFunction;
 	},
 ) => {
 	const { hover, focus, press, ...inline } = css;
 
-	const processStyles = (inlineStyle?: unknown, state?: keyof WithState<undefined>): string[] => {
+	const processStyles = (
+		inlineStyle?: Record<string, unknown>,
+		state?: keyof WithState<undefined>,
+	): string[] => {
 		if (!inlineStyle) return [];
+		if (preprocess) inlineStyle = preprocess(inlineStyle);
 
 		// I'm sad that traverse is not a thing in JS.
 		const [localClassNames, localStyle] = Object.entries(inlineStyle).reduce<[string[], string[]]>(
 			(acc, [key, value]) => {
 				const n = generateAtomicCss(key, value, state ?? "normal", {
 					theme,
-					preprocess,
 					preprocessBlock,
 				});
 				acc[0].push(...n.map((x) => x[0]));

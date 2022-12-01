@@ -32,6 +32,9 @@ const BoxWithoutProps = (props: Stylable) => {
 					hover: { alignContent: "center", alignItems: "center" },
 					press: { alignContent: "center" },
 					focus: { alignContent: "center" },
+					shadowOpacity: 0.5,
+					shadowRadius: 2,
+					shadowOffset: { width: 3, height: 3 },
 				},
 				props,
 			)}
