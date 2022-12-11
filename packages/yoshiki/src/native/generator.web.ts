@@ -38,7 +38,8 @@ export const useYoshiki = () => {
 				preprocessBlock: rnwPreprocess,
 				preprocess
 			});
-			return [inline, { $$css: true, yoshiki: classNames }];
+			// We use the inlineList and not the inline we have locally since $$css and inlines are not mergable.
+			return [inlineList, { $$css: true, yoshiki: classNames }];
 		};
 
 		const loStyle = leftOvers?.style;
