@@ -3,9 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import { PixelRatio } from "react-native";
+import { PixelRatio, Platform } from "react-native";
 
 export const px = (value: number) => value;
 export const percent = (value: number) => `${value}%`;
-export const em = (value: number) => PixelRatio.getFontScale() * 16 * value;
-export const rem = em;
+export const em = (value: number) =>
+	Platform.OS === "web" ? `${value}em` : PixelRatio.getFontScale() * 16 * value;
+export const rem = Platform.OS === "web" ? (value: number) => `${value}rem` : em;
