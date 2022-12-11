@@ -13,7 +13,7 @@ export const em = Platform.OS === "web"
 	: (value: number): number => PixelRatio.getFontScale() * 16 * value;
 // prettier-ignore
 export const rem = Platform.OS === "web"
-	? (value: number) => `${value}rem` 
+	? (value: number): number => `${value}rem` as unknown as number
 	: em;
 // prettier-ignore
 export const vw = Platform.OS === "web"
