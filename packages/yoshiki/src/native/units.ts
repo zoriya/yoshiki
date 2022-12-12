@@ -5,21 +5,37 @@
 
 import { Dimensions, PixelRatio, Platform } from "react-native";
 
-export const px = (value: number) => value;
+const px =
+	Platform.OS === "web"
+		? (value: number): number => `${value}px` as unknown as number
+		: (value: number): number => value;
+
 export const percent = (value: number) => `${value}%`;
-// prettier-ignore
-export const em = Platform.OS === "web"
-	? (value: number): number => `${value}em` as unknown as number
-	: (value: number): number => PixelRatio.getFontScale() * 16 * value;
-// prettier-ignore
-export const rem = Platform.OS === "web"
-	? (value: number): number => `${value}rem` as unknown as number
-	: em;
-// prettier-ignore
-export const vw = Platform.OS === "web"
-	? (value: number): number => `${value}vw` as unknown as number
-	: (value: number): number => value * Dimensions.get("window").width / 100;
-// prettier-ignore
-export const vh = Platform.OS === "web"
-	? (value: number): number => `${value}vh` as unknown as number
-	: (value: number): number => value * Dimensions.get("window").height / 100;
+
+export const em =
+	Platform.OS === "web"
+		? (value: number): number => `${value}em` as unknown as number
+		: (value: number): number => PixelRatio.getFontScale() * 16 * value;
+
+export const rem =
+	Platform.OS === "web" ? (value: number): number => `${value}rem` as unknown as number : em;
+
+export const vw =
+	Platform.OS === "web"
+		? (value: number): number => `${value}vw` as unknown as number
+		: (value: number): number => (value * Dimensions.get("window").width) / 100;
+
+export const vh =
+	Platform.OS === "web"
+		? (value: number): number => `${value}vh` as unknown as number
+		: (value: number): number => (value * Dimensions.get("window").height) / 100;
+
+export const min =
+	Platform.OS === "web"
+		? (...values: number[]): number => `min(${values.join(", ")})` as unknown as number
+		: (...values: number[]): number => Math.min(...values);
+
+export const max =
+	Platform.OS === "web"
+		? (...values: number[]): number => `max(${values.join(", ")})` as unknown as number
+		: (...values: number[]): number => Math.max(...values);
