@@ -5,7 +5,7 @@
 
 import { Dimensions, PixelRatio, Platform } from "react-native";
 
-const px =
+export const px =
 	Platform.OS === "web"
 		? (value: number): number => `${value}px` as unknown as number
 		: (value: number): number => value;
