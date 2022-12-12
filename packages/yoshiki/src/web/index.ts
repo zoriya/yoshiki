@@ -16,7 +16,7 @@ export type Stylable = {
 
 export type StylableHoverable = Stylable;
 
-export { useYoshiki } from "./generator";
+export { useYoshiki, sm, md, lg, xl } from "./generator";
 export { StyleRegistryProvider, useStyleRegistry, createStyleRegistry } from "./registry";
 export { useMobileHover } from "./hover";
 export * from "./units";

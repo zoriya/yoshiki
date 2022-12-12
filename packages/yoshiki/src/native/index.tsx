@@ -27,6 +27,7 @@ export { breakpoints, useTheme } from "../theme";
 export { useYoshiki } from "./generator";
 export { Pressable } from "./hover";
 export * from "./units";
+export { sm, md, lg, xl } from "./type";
 
 export const ThemeProvider = ({ theme, children }: { theme: Theme; children?: ReactNode }) => {
 	return <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>;

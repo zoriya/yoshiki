@@ -7,7 +7,7 @@ import { useInsertionEffect } from "react";
 import { prefix } from "inline-style-prefixer";
 import { Theme, breakpoints, useTheme } from "../theme";
 import { WithState, YoshikiStyle, CssProperties, StyleList, processStyleList } from "../type";
-import { isBreakpoints } from "../utils";
+import { forceBreakpoint, isBreakpoints } from "../utils";
 import { StyleRegistry, useStyleRegistry } from "./registry";
 import { shorthandsFn } from "../shorthands";
 
@@ -18,6 +18,15 @@ type _CssObject = {
 };
 
 export type CssObject = Partial<WithState<_CssObject>> & _CssObject;
+
+type ForcedBreakpointStyle = {
+	[key in keyof CssProperties]: CssProperties[key] | ((theme: Theme) => CssProperties[key]);
+};
+
+export const sm = (value: ForcedBreakpointStyle) => forceBreakpoint(value, "sm");
+export const md = (value: ForcedBreakpointStyle) => forceBreakpoint(value, "md");
+export const lg = (value: ForcedBreakpointStyle) => forceBreakpoint(value, "lg");
+export const xl = (value: ForcedBreakpointStyle) => forceBreakpoint(value, "xl");
 
 const stateMapper: {
 	[key in keyof (WithState<undefined> & { normal: undefined })]: (cn: string) => string;
@@ -88,7 +97,7 @@ const generateAtomicCss = (
 		return Object.entries(value).flatMap(([bp, bpValue]) => {
 			return generateClass(
 				key,
-				bpValue,
+				typeof bpValue === "function" ? bpValue(theme) : bpValue,
 				`${statePrefix}${bp}_`,
 				(className, block) => {
 					const bpWidth = breakpoints[bp as keyof typeof breakpoints];

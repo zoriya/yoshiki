@@ -6,7 +6,7 @@
 import { StatusBar } from "expo-status-bar";
 import { Text, View, Pressable, TextProps } from "react-native";
 import { registerRootComponent } from "expo";
-import { Stylable, useYoshiki, px } from "yoshiki/native";
+import { Stylable, useYoshiki, px, md } from "yoshiki/native";
 import { H1 } from "@expo/html-elements";
 
 const CustomBox = ({ color, ...props }: { color: string } & Stylable) => {
@@ -27,15 +27,19 @@ const BoxWithoutProps = (props: Stylable) => {
 	return (
 		<Pressable
 			{...css(
-				{
-					backgroundColor: { xs: "#00ff00", md: "#ff0000" },
-					hover: { alignContent: "center", alignItems: "center" },
-					press: { alignContent: "center" },
-					focus: { alignContent: "center" },
-					shadowOpacity: 0.5,
-					shadowRadius: 2,
-					shadowOffset: { width: 3, height: 3 },
-				},
+				[
+					{
+						backgroundColor: { xs: "#00ff00", md: "#ff0000" },
+						hover: { alignContent: "center", alignItems: "center" },
+						press: { alignContent: "center" },
+						focus: { alignContent: "center" },
+					},
+					md({
+						shadowOpacity: 0.5,
+						shadowRadius: 2,
+						shadowOffset: { width: 3, height: 3 },
+					}),
+				],
 				props,
 			)}
 		>
@@ -55,9 +59,9 @@ const P = (props: TextProps) => {
 	return (
 		<Text
 			{...css(
-				{
+				md({
 					fontFamily: "toto",
-				},
+				}),
 				props,
 			)}
 		/>

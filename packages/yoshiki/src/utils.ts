@@ -15,3 +15,14 @@ export const isBreakpoints = <T>(value: unknown): value is Breakpoints<T> => {
 	}
 	return true;
 };
+
+export type WithBreakpoints<T> = T extends any ? { [key in keyof T]: Breakpoints<T[key]> } : never;
+
+export const forceBreakpoint = <T extends Record<string, unknown>>(
+	value: T,
+	breakpoint: keyof typeof breakpoints,
+): WithBreakpoints<T> => {
+	return Object.fromEntries(
+		Object.entries(value).map(([key, value]) => [key, { [breakpoint]: value }]),
+	) as any;
+};

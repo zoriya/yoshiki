@@ -10,7 +10,7 @@ import { shorthandsFn } from "./shorthands";
 export type YoshikiStyle<Property> =
 	| Property
 	| ((theme: Theme) => Property | Breakpoints<Property>)
-	| Breakpoints<Property>;
+	| Breakpoints<Property | ((theme: Theme) => Property)>;
 
 export type Breakpoints<Property> = {
 	[key in keyof typeof breakpoints]?: Property;

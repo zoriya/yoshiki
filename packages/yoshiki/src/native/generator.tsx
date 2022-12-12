@@ -36,7 +36,8 @@ const propertyMapper = (
 		const bpKeys = Object.keys(breakpoints) as Array<keyof Breakpoints<unknown>>;
 		for (let i = breakpoint; i >= 0; i--) {
 			if (bpKeys[i] in value) {
-				const bpVal = value[bpKeys[i]];
+				const bpValOrF = value[bpKeys[i]];
+				const bpVal = typeof bpValOrF === "function" ? bpValOrF(theme) : bpValOrF;
 				return bpVal ? [[key, bpVal]] : [];
 			}
 		}

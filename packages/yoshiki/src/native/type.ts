@@ -6,6 +6,8 @@
 import { FilterOr, WithState, YoshikiStyle, Length, StyleList } from "../type";
 import { shorthandsFn } from "../shorthands";
 import { ImageStyle, StyleProp, TextStyle, ViewStyle } from "react-native";
+import { Theme } from "../theme";
+import { forceBreakpoint, WithBreakpoints } from "../utils";
 
 // The extends any check is only used to make EnhancedStyle a distributive type.
 // This means EnhancedStyle<ViewStyle | TextStyle> = EnhancedStyle<ViewStyle> | EnhancedStyle<TextStyle>
@@ -20,6 +22,21 @@ export type EnhancedStyle<Properties> = Properties extends any
 			>;
 	  }
 	: never;
+
+type ForcedBreakpointStyle<Properties> = Properties extends any
+	? {
+			[key in keyof Properties]: Properties[key] | ((theme: Theme) => Properties[key]);
+	  }
+	: never;
+
+export const sm = (value: ForcedBreakpointStyle<ViewStyle | TextStyle | ImageStyle>) =>
+	forceBreakpoint(value, "sm");
+export const md = (value: ForcedBreakpointStyle<ViewStyle | TextStyle | ImageStyle>) =>
+	forceBreakpoint(value, "md");
+export const lg = (value: ForcedBreakpointStyle<ViewStyle | TextStyle | ImageStyle>) =>
+	forceBreakpoint(value, "lg");
+export const xl = (value: ForcedBreakpointStyle<ViewStyle | TextStyle | ImageStyle>) =>
+	forceBreakpoint(value, "xl");
 
 export type StyleFunc<Style> = (state: {
 	pressed?: boolean;
@@ -53,7 +70,9 @@ declare function nativeCss<Leftover = never>(
 ): AddLO<{ style?: ImageStyle }, Leftover>;
 declare function nativeCss<Leftover = never>(
 	cssList: StyleList<EnhancedStyle<ImageStyle> & Partial<WithState<EnhancedStyle<ImageStyle>>>>,
-	leftOvers?: Leftover & { style?: StyleProp<ImageStyle> | StyleFunc<StyleProp<ImageStyle>> | null },
+	leftOvers?: Leftover & {
+		style?: StyleProp<ImageStyle> | StyleFunc<StyleProp<ImageStyle>> | null;
+	},
 ): AddLO<{ style?: StyleFunc<ImageStyle> }, Leftover>;
 
 export type NativeCssFunc = typeof nativeCss;

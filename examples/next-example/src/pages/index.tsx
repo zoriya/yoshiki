@@ -5,7 +5,7 @@
 
 import Head from "next/head";
 import Image from "next/image";
-import { useYoshiki, Stylable, px } from "yoshiki/web";
+import { useYoshiki, Stylable, px, md } from "yoshiki/web";
 import { ReactNode } from "react";
 
 const Box = ({ children, ...props }: { children?: ReactNode } & Stylable) => {
@@ -22,13 +22,17 @@ export default function Home(props: object) {
 	return (
 		<div
 			{...css(
-				{
-					display: "flex",
-					paddingLeft: "2rem",
-					paddingRight: "2rem",
-					flexGrow: 1,
-					margin: undefined,
-				},
+				[
+					{
+						display: "flex",
+						paddingLeft: "2rem",
+						paddingRight: "2rem",
+					},
+					md({
+						flexGrow: 1,
+						margin: undefined,
+					}),
+				],
 				props,
 			)}
 		>

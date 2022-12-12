@@ -15,12 +15,11 @@
 
 As any other npm package, simply run
 
-``yarn add yoshiki``
+`yarn add yoshiki`
 
 or
 
-``npm install --save yoshiki``
-
+`npm install --save yoshiki`
 
 ## Usage
 
@@ -69,6 +68,41 @@ const ColoredBox = ({ color }: { color: string }) => {
 	);
 };
 ```
+
+You can also use multiple style objects to apply some conditions or a breakpoint to multiple styles at once:
+
+```tsx
+import { useState } from "react";
+import { Text, View } from "react-native";
+import { Stylable, useYoshiki, md } from "yoshiki/native";
+
+const ColoredBox = ({ color }: { color: string }) => {
+	const { css } = useYoshiki();
+	const [state, setState] = useState(state);
+
+	return (
+		<View
+			{...css([
+				{
+					backgroundColor: color,
+					height: { xs: "13%", lg: "25%" },
+				},
+				state && {
+					paddingX: (theme) => theme.spaccing,
+					m: 1,
+				},
+				md({
+					width: rem(3),
+				}),
+			])}
+		>
+			<Text {...css({ color: "white" })}>Text inside the colored box.</Text>
+		</View>
+	);
+};
+```
+
+This syntax, as any others of Yoshiki works on both React and React Native.
 
 ## Recipes
 
@@ -237,20 +271,18 @@ const { css, theme } = useYoshiki;
 The `theme` variable is the one returned from `useTheme` and the css function has the following signature:
 
 ```typescript
-css: (css: CssObject, leftovers: object) => Props
+css: (css: CssObject, leftovers: object) => Props;
 ```
 
 The first parameter is a css object, in react web that means a dictionary of css key-values. On React Native that means
-a `ViewStyle`, a `TextStyle` or an `ImageStyle`. Yoshiki will unsure type safety by returning the style object needed 
-for your arguments. 
+a `ViewStyle`, a `TextStyle` or an `ImageStyle`. Yoshiki will unsure type safety by returning the style object needed
+for your arguments.
 
 The css object can also take the keys `hover`, `focus` and `press`, and it will apply the style object given as a value
 to the object only when it should.
 
-
 The leftover parameter is here to allow your component to be customized by yoshiki. See [Customize your own components](#customize-your-own-components)
 for more details.
-
 
 ### useTheme
 
