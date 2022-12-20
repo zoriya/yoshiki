@@ -66,9 +66,9 @@ export const useYoshiki = () => {
 			const { hover, focus, press, ...inline } = css;
 			const ret: StyleFunc<unknown> = ({ hovered, focused, pressed }) => ({
 				...processStyle(inline),
-				...(hovered ? processStyle(hover) : {}),
-				...(focused ? processStyle(focus) : {}),
-				...(pressed ? processStyle(press) : {}),
+				...(hovered ? processStyle(hover ?? {}) : {}),
+				...(focused ? processStyle(focus ?? {}) : {}),
+				...(pressed ? processStyle(press ?? {}) : {}),
 				...(leftOvers?.style
 					? typeof leftOvers?.style === "function"
 						? processStyleList(leftOvers?.style({ hovered, focused, pressed }))

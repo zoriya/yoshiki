@@ -30,6 +30,7 @@ const BoxWithoutProps = (props: Stylable) => {
 				[
 					{
 						backgroundColor: { xs: "#00ff00", md: "#ff0000" },
+						transform: [{ scaleY: 0.7 }],
 						hover: { alignContent: "center", alignItems: "center" },
 						press: { alignContent: "center" },
 						focus: { alignContent: "center" },

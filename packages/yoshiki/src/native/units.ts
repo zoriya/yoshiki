@@ -39,3 +39,20 @@ export const max =
 	Platform.OS === "web"
 		? (...values: number[]): number => `max(${values.join(", ")})` as unknown as number
 		: (...values: number[]): number => Math.max(...values);
+
+export const calc =
+	Platform.OS === "web"
+		? (first: number, operator: "+" | "-" | "*" | "/", second: number): number =>
+				`calc(${first} ${operator} ${second})` as unknown as number
+		: (first: number, operator: "+" | "-" | "*" | "/", second: number): number => {
+				switch (operator) {
+					case "+":
+						return first + second;
+					case "-":
+						return first - second;
+					case "*":
+						return first * second;
+					case "/":
+						return first / second;
+				}
+		  };
