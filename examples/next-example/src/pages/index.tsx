@@ -5,7 +5,7 @@
 
 import Head from "next/head";
 import Image from "next/image";
-import { useYoshiki, Stylable, px, md } from "yoshiki/web";
+import { useYoshiki, Stylable, md } from "yoshiki/web";
 import { ReactNode } from "react";
 
 const Box = ({ children, ...props }: { children?: ReactNode } & Stylable) => {
@@ -27,6 +27,7 @@ export default function Home(props: object) {
 						display: "flex",
 						paddingLeft: "2rem",
 						paddingRight: "2rem",
+						bg: (theme) => theme.background,
 					},
 					md({
 						flexGrow: 1,
@@ -48,7 +49,7 @@ export default function Home(props: object) {
 				</h1>
 
 				<Box />
-				<Box {...css({ bg: "blue", p: px(12) })} />
+				<Box {...css({ bg: "blue", padding: "12px" })} />
 
 				<p>
 					Get started by editing <code>pages/index.tsx</code>

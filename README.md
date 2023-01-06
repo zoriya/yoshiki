@@ -10,6 +10,7 @@
 - Atomic CSS generation
 - Automatic vendor prefixing
 - SSR support
+- Automatic theme (light/dark)
 
 ## Installation
 
@@ -255,6 +256,33 @@ const AppName = () => {
 	const { css, theme } = useYoshiki();
 
 	return <p {...css({ padding: (theme) => theme.spacing })}>{theme.name}</p>;
+};
+```
+
+### Automatic theme
+
+If you have a light and dark theme, you may want to automatically switching between the two based on user preferences.
+Yoshiki support this directly with the css property, you can use the `useAutomaticTheme` to get the automatic version
+of a light/dark theme.
+
+This approach works with SSR.
+
+```tsx
+import { useYoshiki, useAutomaticTheme } from "yohsiki/web";
+
+const App = () => {
+	const theme = {
+		light: { background: "white", text: "black" },
+		dark: { background: "black", text: "white" },
+	};
+	const auto = useAutomaticTheme(theme);
+	const { css } = useYoshiki();
+
+	return (
+		<div {...css({ bg: auto.background })}>
+			<p {...css({ textColor: auto.text })}>Automatic theme</p>
+		</div>
+	);
 };
 ```
 

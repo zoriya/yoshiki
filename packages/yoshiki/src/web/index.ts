@@ -21,6 +21,7 @@ export { StyleRegistryProvider, useStyleRegistry, createStyleRegistry } from "./
 export { useMobileHover } from "./hover";
 export type { Theme };
 export { breakpoints, useTheme } from "../theme";
+export { useAutomaticTheme } from "./automatic-theme";
 
 export const ThemeProvider = ({ theme, children }: { theme: Theme; children?: ReactNode }) =>
 	createElement(ThemeContext.Provider, { value: theme }, [children]);
