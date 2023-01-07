@@ -79,6 +79,7 @@ function App() {
 				backgroundColor: "#fff",
 				alignItems: "center",
 				justifyContent: "center",
+				elevation: 6,
 			})}
 		>
 			<Text>Open up App.tsx to start working on your app!</Text>
