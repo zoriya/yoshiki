@@ -43,7 +43,8 @@ const stateMapper: {
 const sanitize = (className: unknown) => {
 	const name = typeof className === "string" ? className : JSON.stringify(className);
 	if (name === undefined) return "undefined";
-	return name.replaceAll(/[^\w\d_]/g, "");
+	// Keep - as a _ for minus symbols.
+	return name.replaceAll("-", "_").replaceAll(/[^\w\d_]/g, "");
 };
 
 type PreprocessBlockFunction = (block: { [key: string]: unknown }) => { [key: string]: unknown };
