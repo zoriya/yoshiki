@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import { sha1 } from "object-hash";
 import { useStyleRegistry } from "./registry";
 
 type Child = string | number | { [key: string]: Child };
@@ -17,10 +16,13 @@ const traverseEntries = <T extends Record<string, Child>, Ret>(
 	return Object.entries(first).map(([name, f]) => mapper(name, f, second[name]));
 };
 
-export const useAutomaticTheme = <T extends Record<string, Child>>(theme: {
-	light: T;
-	dark: T;
-}): ToChild<T> => {
+export const useAutomaticTheme = <T extends Record<string, Child>>(
+	key: string,
+	theme: {
+		light: T;
+		dark: T;
+	},
+): ToChild<T> => {
 	const registry = useStyleRegistry();
 	const cssVariables: { name: string; light: string | number; dark: string | number }[] = [];
 
@@ -40,7 +42,7 @@ export const useAutomaticTheme = <T extends Record<string, Child>>(theme: {
 				),
 			];
 		}
-		const cssVar = ["-", parent, name].filter((x) => x).join("-");
+		const cssVar = ["-", key, parent, name].filter((x) => x).join("-");
 		cssVariables.push({ name: cssVar, light: light.toString(), dark: dark.toString() });
 		return [name, `var(${cssVar})`];
 	};
@@ -52,6 +54,6 @@ body { ${cssVariables.map((x) => `${x.name}: ${x.light}`).join(";")} }
 	body { ${cssVariables.map((x) => `${x.name}: ${x.dark}`).join(";")} }
 }
 	`;
-	registry.addRule(`automatic-theme-${sha1(theme)}`, rule);
+	registry.addRule(`automatic-theme-${key}`, rule);
 	return auto;
 };

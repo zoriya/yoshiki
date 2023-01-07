@@ -32,7 +32,7 @@ const AppName = () => {
 
 const App = ({ Component, pageProps }: AppProps) => {
 	useMobileHover();
-	const auto = useAutomaticTheme(theme);
+	const auto = useAutomaticTheme("theme", theme);
 
 	return (
 		<ThemeProvider theme={{ ...theme, ...auto }}>
