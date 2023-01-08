@@ -5,8 +5,9 @@
 
 import { useInsertionEffect } from "react";
 import { prefix } from "inline-style-prefixer";
+import { Properties as CssProperties } from "csstype";
 import { Theme, breakpoints, useTheme } from "../theme";
-import { WithState, YoshikiStyle, CssProperties, StyleList, processStyleList } from "../type";
+import { WithState, YoshikiStyle, StyleList, processStyleList } from "../type";
 import { forceBreakpoint, isBreakpoints } from "../utils";
 import { StyleRegistry, useStyleRegistry } from "./registry";
 import { shorthandsFn } from "../shorthands";

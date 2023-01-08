@@ -3,51 +3,46 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import type { CommonStyle } from "./type";
-import type { ViewStyle } from "react-native";
-
-type YSPs = CommonStyle<ViewStyle>;
-
 export const shorthandsFn = {
-	p: (v: YSPs["padding"]): YSPs => ({
+	p: (v: string | number) => ({
 		padding: v,
 	}),
-	pX: (v: YSPs["paddingLeft"]): YSPs => ({
+	pX: (v: string | number) => ({
 		paddingLeft: v,
 		paddingRight: v,
 	}),
-	paddingX: (v: YSPs["paddingLeft"]): YSPs => ({
+	paddingX: (v: string | number) => ({
 		paddingLeft: v,
 		paddingRight: v,
 	}),
-	pY: (v: YSPs["paddingTop"]): YSPs => ({
+	pY: (v: string | number) => ({
 		paddingTop: v,
 		paddingBottom: v,
 	}),
-	paddingY: (v: YSPs["paddingTop"]): YSPs => ({
+	paddingY: (v: string | number) => ({
 		paddingTop: v,
 		paddingBottom: v,
 	}),
-	m: (v: YSPs["margin"]): YSPs => ({
+	m: (v: string | number) => ({
 		margin: v,
 	}),
-	mX: (v: YSPs["marginLeft"]): YSPs => ({
+	mX: (v: string | number) => ({
 		marginLeft: v,
 		marginRight: v,
 	}),
-	marginX: (v: YSPs["marginLeft"]): YSPs => ({
+	marginX: (v: string | number) => ({
 		marginLeft: v,
 		marginRight: v,
 	}),
-	mY: (v: YSPs["marginTop"]): YSPs => ({
+	mY: (v: string | number) => ({
 		marginTop: v,
 		marginBottom: v,
 	}),
-	marginY: (v: YSPs["marginTop"]): YSPs => ({
+	marginY: (v: string | number) => ({
 		marginTop: v,
 		marginBottom: v,
 	}),
-	bg: (v: YSPs["backgroundColor"]): YSPs => ({
+	bg: (v: string) => ({
 		backgroundColor: v,
 	}),
 };

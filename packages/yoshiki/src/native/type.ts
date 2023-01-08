@@ -3,11 +3,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import { FilterOr, WithState, YoshikiStyle, Length, StyleList } from "../type";
+import { WithState, YoshikiStyle, StyleList } from "../type";
 import { shorthandsFn } from "../shorthands";
 import { ImageStyle, StyleProp, TextStyle, ViewStyle } from "react-native";
 import { Theme } from "../theme";
-import { forceBreakpoint, WithBreakpoints } from "../utils";
+import { forceBreakpoint } from "../utils";
 
 // The extends any check is only used to make EnhancedStyle a distributive type.
 // This means EnhancedStyle<ViewStyle | TextStyle> = EnhancedStyle<ViewStyle> | EnhancedStyle<TextStyle>
@@ -15,11 +15,7 @@ export type EnhancedStyle<Properties> = Properties extends any
 	? {
 			[key in keyof Properties]: YoshikiStyle<Properties[key]>;
 	  } & {
-			[key in keyof typeof shorthandsFn]?: FilterOr<
-				Parameters<typeof shorthandsFn[key]>[0],
-				Length,
-				YoshikiStyle<number>
-			>;
+			[key in keyof typeof shorthandsFn]?: Parameters<typeof shorthandsFn[key]>[0];
 	  }
 	: never;
 

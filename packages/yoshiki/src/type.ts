@@ -4,8 +4,6 @@
 //
 
 import { breakpoints, Theme } from "./theme";
-import { Properties as _CssProperties } from "csstype";
-import { shorthandsFn } from "./shorthands";
 
 export type YoshikiStyle<Property> =
 	| Property
@@ -34,26 +32,4 @@ export type StyleList<T> = T | undefined | null | false | ReadonlyArray<StyleLis
 export const processStyleList = <Style>(los: StyleList<Style>): Partial<Style> => {
 	if (isReadonlyArray(los)) return los.reduce((acc, x) => ({ ...acc, ...processStyleList(x) }), {});
 	return los ? los : {};
-};
-
-// dummy type only used for the API.
-export type Length = { a: 1 };
-export type CssProperties = _CssProperties<0 | Length | string>;
-
-type FilterOrNever<T, Filter> = T extends Filter ? Filter : never;
-export type FilterOr<T, Filter, Replacement = Filter> = [FilterOrNever<T, Filter>] extends [never]
-	? T
-	: Replacement;
-
-type CombineWithLength<A, B> = {
-	[key in keyof A & keyof B]?: FilterOr<(A & B)[key], Length>;
-};
-export type CommonCss<Style> = CombineWithLength<CssProperties, Style>;
-
-export type CommonStyle<Style> = {
-	[key in keyof CommonCss<Style>]: YoshikiStyle<CommonCss<Style>[key]>;
-};
-
-export type EnhancedStyle<Style> = CommonStyle<Style> & {
-	[key in keyof typeof shorthandsFn]?: Parameters<typeof shorthandsFn[key]>[0];
 };
