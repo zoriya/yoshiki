@@ -7,6 +7,7 @@
 - Breakpoints as objects
 - User defined theme support
 - Shorthands (`m` for `margin`, `paddingX` for `paddingLeft` and `paddingRight`...)
+- State handling (hover, focused, pressed) with child support
 - Atomic CSS generation
 - Automatic vendor prefixing
 - SSR support
@@ -37,9 +38,17 @@ const ColoredDiv = ({ color }: { color: string }) => {
 				height: { xs: "13%", lg: "25%" },
 				paddingX: (theme) => theme.spaccing,
 				m: 1,
+				focus: {
+					self: {
+						bg: "green",
+					},
+					text: {
+						color: "black",
+					},
+				}
 			})}
 		>
-			<p {...css({ color: "white" })}>Text inside the colored div.</p>
+			<p {...css([{ color: "white" }, "text"])}>Text inside the colored div.</p>
 		</div>
 	);
 };
@@ -62,9 +71,17 @@ const ColoredBox = ({ color }: { color: string }) => {
 				height: { xs: "13%", lg: "25%" },
 				paddingX: (theme) => theme.spaccing,
 				m: 1,
+				focus: {
+					self: {
+						bg: "green",
+					},
+					text: {
+						color: "black",
+					},
+				}
 			})}
 		>
-			<Text {...css({ color: "white" })}>Text inside the colored box.</Text>
+			<Text {...css([{ color: "white" }, "text"])}>Text inside the colored div.</Text>
 		</View>
 	);
 };
@@ -336,8 +353,10 @@ The first parameter is a css object, in react web that means a dictionary of css
 a `ViewStyle`, a `TextStyle` or an `ImageStyle`. Yoshiki will unsure type safety by returning the style object needed
 for your arguments.
 
-The css object can also take the keys `hover`, `focus` and `press`, and it will apply the style object given as a value
-to the object only when it should.
+The css object can also take the keys `hover`, `focus` and `press`. Thoses keys should be filled with a dictionary of
+keys and style properties. You can then use thoses keys on a child component by putting it as a string in the `css`
+call. Yoshiki will apply the style object to the object only when it should. You can also use the special value `self`
+to directly theme the component that defines the state.
 
 The leftover parameter is here to allow your component to be customized by yoshiki. See [Customize your own components](#customize-your-own-components)
 for more details.
