@@ -145,11 +145,13 @@ export const yoshikiCssToClassNames = (
 	{
 		registry,
 		theme,
+		parentPrefix,
 		preprocess,
 		preprocessBlock,
 	}: {
 		registry: StyleRegistry;
 		theme: Theme;
+		parentPrefix: string;
 		preprocess?: (style: Record<string, unknown>) => Record<string, unknown>;
 		preprocessBlock?: PreprocessBlockFunction;
 	},
@@ -185,6 +187,9 @@ export const yoshikiCssToClassNames = (
 		processStyles(hover?.self, "hover"),
 		processStyles(focus?.self, "focus"),
 		processStyles(press?.self, "press"),
+		Object.keys({ ...hover, ...focus, ...press })
+			.filter((x) => x !== "self")
+			.map((x) => parentPrefix + x),
 		classNames,
 	);
 };
@@ -192,7 +197,7 @@ export const yoshikiCssToClassNames = (
 export const useYoshiki = () => {
 	const theme = useTheme();
 	const registry = useStyleRegistry();
-	const childPrefix = useClassId();
+	const [parentPrefix, childPrefix] = useClassId();
 
 	useInsertionEffect(() => {
 		registry.flushToBrowser();
@@ -206,12 +211,12 @@ export const useYoshiki = () => {
 			const [css, parentKeys] = processStyleListWithoutChild(cssList);
 			const { className, ...leftOver } = leftOverProps ?? {};
 
-			generateChildCss(css, { childPrefix, registry, theme });
+			generateChildCss(css, { parentPrefix, childPrefix, registry, theme });
 			return {
 				className: yoshikiCssToClassNames(
 					css,
 					[...parentKeys.map((x) => `${childPrefix}${x}`), ...(className?.split(" ") ?? [])],
-					{ registry, theme },
+					{ registry, theme, parentPrefix },
 				),
 				...leftOver,
 			} as any;
@@ -221,18 +226,21 @@ export const useYoshiki = () => {
 };
 
 export const useClassId = () => {
-	return "ysc" + useId().replaceAll(":", "-");
+	const id = useId().replaceAll(":", "-");
+	return ["ysp" + id, "ysc" + id] as const;
 };
 
 export const generateChildCss = (
 	{ hover, focus, press }: Partial<WithState<Record<string, unknown>>>,
 	{
+		parentPrefix,
 		childPrefix,
 		registry,
 		theme,
 		preprocess,
 		preprocessBlock,
 	}: {
+		parentPrefix: string;
 		childPrefix: string;
 		registry: StyleRegistry;
 		theme: Theme;
@@ -250,7 +258,8 @@ export const generateChildCss = (
 		for (let [name, style] of Object.entries(list)) {
 			if (!style || name === "self") continue;
 			if (preprocess) style = preprocess(style);
-			const className = `${childPrefix}${name}`;
+			const parentName = parentPrefix + name;
+			const className = childPrefix + name;
 
 			const splitStyle = Object.entries(style)
 				.flatMap((entry) => {
@@ -277,13 +286,12 @@ export const generateChildCss = (
 					},
 					{ default: {} } as Record<string, Record<string, unknown>>,
 				);
-			// TODO: Wrong class generation. It should use the state of the parent, not those of the child.
 			// TODO: update the registry to sort classes on the right category
 
 			for (const [breakpoint, breakedStyle] of Object.entries(splitStyle)) {
 				const block = generateClassBlock(breakedStyle, preprocessBlock);
 				if (!block) continue;
-				const cssClass = `${stateMapper[state](className)} ${block}`;
+				const cssClass = `${stateMapper[state](parentName)} .${className} ${block}`;
 				registry.addRule(
 					`${className}-${state}-${breakpoint}`,
 					addBreakpointBlock(breakpoint as BreakpointKey, cssClass),
