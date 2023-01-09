@@ -33,6 +33,23 @@ export const processStyleList = <Style>(los: StyleList<Style>): Partial<Style> =
 	if (isReadonlyArray(los)) return los.reduce((acc, x) => ({ ...acc, ...processStyleList(x) }), {});
 	return los ? los : {};
 };
+
+export const processStyleListWithoutChild = <Style>(
+	los: StyleList<Style | string>,
+): [Partial<Style>, string[]] => {
+	if (isReadonlyArray(los))
+		return los.reduce(
+			(acc, x) => {
+				if (typeof x === "string") return [acc[0], [...acc[1], x]];
+				const rest = processStyleListWithoutChild(x);
+				return [{ ...acc[0], ...rest[0] }, [...acc[1], ...rest[1]]];
+			},
+			[{}, []] as [Partial<Style>, string[]],
+		);
+	if (!los) return [{}, []];
+	return typeof los === "string" ? [{}, [los]] : [los, []];
+};
+
 export const processStyleListWithChild = <Style>(
 	los: StyleList<Style | string>,
 	parent: Record<string, Style>,

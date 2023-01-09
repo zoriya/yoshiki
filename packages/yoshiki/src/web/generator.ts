@@ -3,11 +3,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import { useInsertionEffect } from "react";
+import { useId, useInsertionEffect } from "react";
 import { prefix } from "inline-style-prefixer";
 import { Properties as CssProperties } from "csstype";
 import { Theme, breakpoints, useTheme } from "../theme";
-import { WithState, YoshikiStyle, StyleList, processStyleList } from "../type";
+import { WithState, YoshikiStyle, StyleList, processStyleListWithoutChild } from "../type";
 import { forceBreakpoint, isBreakpoints } from "../utils";
 import { StyleRegistry, useStyleRegistry } from "./registry";
 import { shorthandsFn } from "../shorthands";
@@ -189,9 +189,14 @@ export const yoshikiCssToClassNames = (
 	);
 };
 
+export const useClassId = () => {
+	return "ysc" + useId().replaceAll(":", "-");
+};
+
 export const useYoshiki = () => {
 	const theme = useTheme();
 	const registry = useStyleRegistry();
+	const childPrefix = useClassId();
 
 	useInsertionEffect(() => {
 		registry.flushToBrowser();
@@ -199,13 +204,17 @@ export const useYoshiki = () => {
 
 	return {
 		css: <Leftover>(
-			cssList: StyleList<CssObject>,
+			cssList: StyleList<CssObject | string>,
 			leftOverProps?: Leftover & { className?: string },
 		): { className: string } & Omit<Leftover, "className"> => {
-			const css = processStyleList(cssList);
+			const [css, parentKeys] = processStyleListWithoutChild(cssList);
 			const { className, ...leftOver } = leftOverProps ?? {};
 			return {
-				className: yoshikiCssToClassNames(css, className?.split(" "), { registry, theme }),
+				className: yoshikiCssToClassNames(
+					css,
+					[...parentKeys.map((x) => `${childPrefix}${x}`), ...(className?.split(" ") ?? [])],
+					{ registry, theme },
+				),
 				...leftOver,
 			} as any;
 		},

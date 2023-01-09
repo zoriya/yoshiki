@@ -16,7 +16,7 @@ const Box = ({ children, ...props }: { children?: ReactNode } & Stylable) => {
 	);
 };
 
-export default function Home(props: object) {
+export default function Home(props: Stylable) {
 	const { css } = useYoshiki();
 
 	return (
@@ -27,6 +27,7 @@ export default function Home(props: object) {
 						display: "flex",
 						paddingLeft: "2rem",
 						paddingRight: "2rem",
+						paddingTop: (theme) => theme.background,
 						bg: (theme) => theme.background,
 					},
 					md({
@@ -58,19 +59,31 @@ export default function Home(props: object) {
 				<div
 					{...css({
 						backgroundColor: "green",
-						hover: {
-							backgroundColor: "blue",
-						},
 						press: {
-							backgroundColor: "red",
+							self: {
+								bg: "red",
+							},
+							text: {
+								color: "white",
+							},
+						},
+						hover: {
+							text: {
+								color: "blue",
+							},
 						},
 						focus: {
-							backgroundColor: "yellow",
+							self: {
+								bg: "yellow",
+							},
+							text: {
+								color: "green",
+							},
 						},
 					})}
 					tabIndex={0}
 				>
-					<a href="https://nextjs.org/docs">
+					<a href="https://nextjs.org/docs" {...css([{ color: "red" }, "text"])}>
 						<h2>Documentation &rarr;</h2>
 						<p>Find in-depth information about Next.js features and API.</p>
 					</a>
@@ -89,7 +102,7 @@ export default function Home(props: object) {
 				<div
 					{...css({
 						hover: {
-							background: { xs: "red", sm: "blue", md: "green" },
+							self: { background: { xs: "red", sm: "blue", md: "green" } },
 						},
 					})}
 				>
