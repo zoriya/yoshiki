@@ -3,46 +3,48 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
+import { YoshikiStyle } from "./type";
+
 export const shorthandsFn = {
-	p: (v: string | number) => ({
+	p: (v: YoshikiStyle<string | number>) => ({
 		padding: v,
 	}),
-	pX: (v: string | number) => ({
+	pX: (v: YoshikiStyle<string | number>) => ({
 		paddingLeft: v,
 		paddingRight: v,
 	}),
-	paddingX: (v: string | number) => ({
+	paddingX: (v: YoshikiStyle<string | number>) => ({
 		paddingLeft: v,
 		paddingRight: v,
 	}),
-	pY: (v: string | number) => ({
+	pY: (v: YoshikiStyle<string | number>) => ({
 		paddingTop: v,
 		paddingBottom: v,
 	}),
-	paddingY: (v: string | number) => ({
+	paddingY: (v: YoshikiStyle<string | number>) => ({
 		paddingTop: v,
 		paddingBottom: v,
 	}),
-	m: (v: string | number) => ({
+	m: (v: YoshikiStyle<string | number>) => ({
 		margin: v,
 	}),
-	mX: (v: string | number) => ({
+	mX: (v: YoshikiStyle<string | number>) => ({
 		marginLeft: v,
 		marginRight: v,
 	}),
-	marginX: (v: string | number) => ({
+	marginX: (v: YoshikiStyle<string | number>) => ({
 		marginLeft: v,
 		marginRight: v,
 	}),
-	mY: (v: string | number) => ({
+	mY: (v: YoshikiStyle<string | number>) => ({
 		marginTop: v,
 		marginBottom: v,
 	}),
-	marginY: (v: string | number) => ({
+	marginY: (v: YoshikiStyle<string | number>) => ({
 		marginTop: v,
 		marginBottom: v,
 	}),
-	bg: (v: string) => ({
+	bg: (v: YoshikiStyle<string>) => ({
 		backgroundColor: v,
 	}),
 };
