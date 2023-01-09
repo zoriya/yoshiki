@@ -3,9 +3,18 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import { Theme, ThemeProvider, useAutomaticTheme } from "yoshiki";
-import { useYoshiki, useMobileHover } from "yoshiki/web";
 import { AppProps } from "next/app";
+import { ReactNode, useMemo } from "react";
+import { useServerInsertedHTML } from "next/navigation";
+import {
+	useYoshiki,
+	createStyleRegistry,
+	useMobileHover,
+	StyleRegistryProvider,
+	Theme,
+	ThemeProvider,
+	useAutomaticTheme,
+} from "yoshiki";
 
 declare module "yoshiki" {
 	export interface Theme {
@@ -27,7 +36,21 @@ export const theme: Theme = {
 
 const AppName = () => {
 	const { css, theme } = useYoshiki();
-	return <p {...css({ padding: (theme) => theme.spacing })}>{theme.name}</p>;
+	return (
+		<div {...css({ hover: { text: { color: "red" } } })}>
+			<p {...css([{ padding: (theme) => theme.spacing }, "text"])}>{theme.name}</p>
+		</div>
+	);
+};
+
+const RootRegistry = ({ children }: { children: ReactNode }) => {
+	const registry = useMemo(() => createStyleRegistry(), []);
+
+	useServerInsertedHTML(() => {
+		return registry.flushToComponent();
+	});
+
+	return <StyleRegistryProvider registry={registry}>{children}</StyleRegistryProvider>;
 };
 
 const App = ({ Component, pageProps }: AppProps) => {
@@ -35,10 +58,12 @@ const App = ({ Component, pageProps }: AppProps) => {
 	const auto = useAutomaticTheme("theme", theme);
 
 	return (
-		<ThemeProvider theme={{ ...theme, ...auto }}>
-			<Component {...pageProps} />
-			<AppName />
-		</ThemeProvider>
+		<RootRegistry>
+			<ThemeProvider theme={{ ...theme, ...auto }}>
+				<Component {...pageProps} />
+				<AppName />
+			</ThemeProvider>
+		</RootRegistry>
 	);
 };
 

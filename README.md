@@ -188,6 +188,36 @@ const style = registry.flush();
 
 #### Next
 
+Starting Next 13, a new hook is available to do this easily. If you have not yet migrated to next 13, don't worry, there is another solution below.
+
+Wrap your app with the following component:
+
+```tsx
+import { ReactNode, useMemo } from "react";
+import { useServerInsertedHTML } from "next/navigation";
+import { createStyleRegistry, StyleRegistryProvider } from "yoshiki";
+
+const RootRegistry = ({ children }: { children: ReactNode }) => {
+	const registry = useMemo(() => createStyleRegistry(), []);
+
+	useServerInsertedHTML(() => {
+		return registry.flushToComponent();
+	});
+
+	return <StyleRegistryProvider registry={registry}>{children}</StyleRegistryProvider>;
+};
+
+const App = ({ Component, pageProps }: AppProps) => {
+	return (
+		<RootRegistry>
+			<Component {...pageProps} />
+		</RootRegistry>
+	);
+};
+```
+
+#### Next < 13
+
 Simply use the following `getInitialProps` inside the `pages/_document.tsx` file.
 
 ```tsx
@@ -275,7 +305,7 @@ const App = () => {
 		light: { background: "white", text: "black" },
 		dark: { background: "black", text: "white" },
 	};
-	const auto = useAutomaticTheme(theme);
+	const auto = useAutomaticTheme("key", theme);
 	const { css } = useYoshiki();
 
 	return (

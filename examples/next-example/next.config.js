@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-const withTM = require("next-transpile-modules")(["yoshiki"]);
 const path = require("path");
 
 /**
@@ -22,4 +21,4 @@ const nextConfig = {
 	},
 };
 
-module.exports = withTM(nextConfig);
+module.exports = nextConfig;
