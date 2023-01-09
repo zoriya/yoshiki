@@ -31,9 +31,28 @@ const BoxWithoutProps = (props: Stylable) => {
 					{
 						backgroundColor: { xs: "#00ff00", md: "#ff0000" },
 						transform: [{ scaleY: 0.7 }],
-						hover: { alignContent: "center", alignItems: "center" },
-						press: { alignContent: "center" },
-						focus: { alignContent: "center" },
+						press: {
+							self: {
+								bg: "red",
+							},
+							text: {
+								color: "white",
+							},
+						},
+						hover: {
+							text: {
+								color: "blue",
+							},
+						},
+						focus: {
+							self: {
+								bg: "yellow"
+							},
+							text: {
+								transform: [{ scale: 2 }],
+								color: "green"
+							},
+						},
 					},
 					md({
 						shadowOpacity: 0.5,
@@ -45,9 +64,12 @@ const BoxWithoutProps = (props: Stylable) => {
 			)}
 		>
 			<H1
-				{...css({
-					color: { xs: "black", md: "white" },
-				})}
+				{...css([
+					{
+						color: { xs: "black", md: "white" },
+					},
+					"text",
+				])}
 			>
 				Text inside the box without props (green on small screens, red on bigs)
 			</H1>
@@ -85,12 +107,14 @@ function App() {
 			<Text>Open up App.tsx to start working on your app!</Text>
 			<CustomBox color="black" {...css({ borderColor: "red", borderWidth: px(3) })} />
 			<BoxWithoutProps {...css({ borderColor: "red", borderWidth: px(3) })} />
-			<P
-				accessibilityLabel="toto"
-				style={[undefined, false, { color: "red" }, [{ color: "green" }, false]]}
-			>
-				Test
-			</P>
+			<Pressable android_ripple={{ color: "black"}}>
+				<P
+					accessibilityLabel="toto"
+					style={[undefined, false, { color: "red" }, [{ color: "green" }, false]]}
+				>
+					Test
+				</P>
+			</Pressable>
 			<StatusBar style="auto" />
 		</View>
 	);

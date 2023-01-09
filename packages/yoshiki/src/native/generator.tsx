@@ -3,12 +3,20 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import { useWindowDimensions } from "react-native";
+import { PressableProps, useWindowDimensions, ViewStyle } from "react-native";
 import { breakpoints, Theme, useTheme } from "../theme";
-import { Breakpoints, YoshikiStyle, hasState, processStyleList } from "../type";
+import {
+	Breakpoints,
+	YoshikiStyle,
+	hasState,
+	processStyleList,
+	processStyleListWithChild,
+	assignChilds,
+} from "../type";
 import { isBreakpoints } from "../utils";
 import { shorthandsFn } from "../shorthands";
-import { StyleFunc, NativeCssFunc } from "./type";
+import { StyleFunc, NativeCssFunc, NativeStyle } from "./type";
+import { useReducer, useRef, useState } from "react";
 
 const useBreakpoint = (): number => {
 	const { width } = useWindowDimensions();
@@ -46,12 +54,19 @@ const propertyMapper = (
 	return [[key, value]];
 };
 
+const useForceRerender = () => {
+	return useReducer((x) => x + 1, 0)[1];
+};
+
 export const useYoshiki = () => {
 	const breakpoint = useBreakpoint();
 	const theme = useTheme();
+	const rerender = useForceRerender();
+	const childStyles = useRef<Record<string, NativeStyle | undefined>>({});
 
 	const css: NativeCssFunc = (cssList, leftOvers) => {
-		const css = processStyleList(cssList);
+		// The as any is because we can't be sure the style type is right one.
+		const css = processStyleListWithChild(cssList, childStyles.current as any);
 
 		const processStyle = (styleList: Record<string, YoshikiStyle<unknown>>) => {
 			const ret = Object.fromEntries(
@@ -62,35 +77,63 @@ export const useYoshiki = () => {
 			return ret;
 		};
 
-		if (hasState<Record<string, unknown>>(css)) {
+		if (hasState<Record<string, ViewStyle>>(css)) {
 			const { hover, focus, press, ...inline } = css;
-			const ret: StyleFunc<unknown> = ({ hovered, focused, pressed }) => ({
-				...processStyle(inline),
-				...(hovered ? processStyle(hover ?? {}) : {}),
-				...(focused ? processStyle(focus ?? {}) : {}),
-				...(pressed ? processStyle(press ?? {}) : {}),
-				...(leftOvers?.style
-					? typeof leftOvers?.style === "function"
-						? processStyleList(leftOvers?.style({ hovered, focused, pressed }))
-						: processStyleList(leftOvers?.style)
-					: {}),
-			});
+			const { onPressIn, onPressOut, onHoverIn, onHoverOut, onFocus, onBlur } =
+				leftOvers as PressableProps;
+			const ret: StyleFunc<unknown> = ({ hovered, focused, pressed }) => {
+				childStyles.current = {};
+				if (hovered) assignChilds(childStyles.current, hover);
+				if (focused) assignChilds(childStyles.current, focus);
+				if (pressed) assignChilds(childStyles.current, press);
+
+				return [
+					processStyle(inline),
+					hovered && processStyle(hover?.self ?? {}),
+					focused && processStyle(focus?.self ?? {}),
+					pressed && processStyle(press?.self ?? {}),
+					leftOvers?.style &&
+						(typeof leftOvers?.style === "function"
+							? processStyleList(leftOvers?.style({ hovered, focused, pressed }))
+							: leftOvers?.style),
+				];
+			};
 
 			return {
 				...leftOvers,
-				style: ret,
-			};
+				style: ret as StyleFunc<ViewStyle>,
+				// We must use a setTimeout since the child styles are computed inside the style function (called after onIn/onOut)
+				// NOTE: The props onIn/onOut are overriden here and the user can't use them. Might want to find a way arround that.
+				onPressIn: (e) => {
+					onPressIn?.call(null, e);
+					setTimeout(rerender);
+				},
+				onPressOut: (e) => {
+					onPressOut?.call(null, e);
+					setTimeout(rerender);
+				},
+				onHoverIn: (e) => {
+					onHoverIn?.call(null, e);
+					setTimeout(rerender);
+				},
+				onHoverOut: (e) => {
+					onHoverOut?.call(null, e);
+					setTimeout(rerender);
+				},
+				onFocus: (e) => {
+					onFocus?.call(null, e);
+					setTimeout(rerender);
+				},
+				onBlur: (e) => {
+					onBlur?.call(null, e);
+					setTimeout(rerender);
+				},
+			} satisfies PressableProps;
 		} else {
-			const loStyles =
-				leftOvers?.style && typeof leftOvers?.style !== "function"
-					? processStyleList(leftOvers.style)
-					: {};
-			const ret = {
+			return {
 				...leftOvers,
-				style: { ...processStyle(css), ...loStyles },
-			};
-
-			return ret as any;
+				style: [processStyle(css), leftOvers?.style],
+			} as any;
 		}
 	};
 
