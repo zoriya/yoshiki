@@ -69,7 +69,7 @@ export default function Home(props: Stylable) {
 						},
 						hover: {
 							text: {
-								color: "blue",
+								color: { xs: "blue", md: "black" },
 							},
 						},
 						focus: {

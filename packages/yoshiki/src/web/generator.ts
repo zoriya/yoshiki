@@ -71,6 +71,13 @@ const generateClassBlock = (
 	return `{ ${block} }`;
 };
 
+type BreakpointKey = keyof typeof breakpoints | "default";
+const addBreakpointBlock = (bp: BreakpointKey, block: string) => {
+	if (bp === "default") return block;
+	const bpWidth = breakpoints[bp];
+	return `@media (min-width: ${bpWidth}px) { ${block} }`;
+};
+
 const generateAtomicCss = (
 	key: string,
 	value: YoshikiStyle<unknown>,
@@ -95,22 +102,25 @@ const generateAtomicCss = (
 
 	const statePrefix = state !== "normal" ? state + "_" : "";
 	if (isBreakpoints(value)) {
-		return Object.entries(value).map(([bp, bpValue]) => {
-			const bpWidth = breakpoints[bp as keyof typeof breakpoints];
+		return Object.entries(value).flatMap(([bp, bpValue]) => {
 			const className = generateAtomicName(`${statePrefix}${bp}_`, key, bpValue);
 			const block = generateClassBlock(
 				{ [key]: typeof bpValue === "function" ? bpValue(theme) : bpValue },
 				preprocessBlock,
 			);
+			if (!block) return [];
 			return [
-				className,
-				`@media (min-width: ${bpWidth}px) { ${stateMapper[state](className)} ${block} }`,
+				[
+					className,
+					addBreakpointBlock(bp as BreakpointKey, `${stateMapper[state](className)} ${block}`),
+				],
 			];
 		});
 	}
 
 	const className = generateAtomicName(statePrefix, key, value);
 	const block = generateClassBlock({ [key]: value }, preprocessBlock);
+	if (!block) return [];
 	return [[className, `${stateMapper[state](className)} ${block}`]];
 };
 
@@ -242,11 +252,43 @@ export const generateChildCss = (
 			if (preprocess) style = preprocess(style);
 			const className = `${childPrefix}${name}`;
 
-			// TODO process styles breakpoints & theme
+			const splitStyle = Object.entries(style)
+				.flatMap((entry) => {
+					if (entry[0] in shorthandsFn) {
+						const expanded = shorthandsFn[entry[0] as keyof typeof shorthandsFn](entry[1] as any);
+						return Object.entries(expanded);
+					}
+					return [entry];
+				})
+				.reduce(
+					(acc, [key, value]) => {
+						if (typeof value === "function") {
+							value = value(theme);
+						}
+						if (isBreakpoints(value)) {
+							for (const [bp, bpValue] of Object.entries(value)) {
+								acc[bp] ??= {};
+								acc[bp][key] = typeof bpValue === "function" ? bpValue(theme) : bpValue;
+							}
+						} else {
+							acc["default"][key] = value;
+						}
+						return acc;
+					},
+					{ default: {} } as Record<string, Record<string, unknown>>,
+				);
+			// TODO: Wrong class generation. It should use the state of the parent, not those of the child.
+			// TODO: update the registry to sort classes on the right category
 
-			const block = generateClassBlock(style, preprocessBlock);
-			const cssClass = `${stateMapper[state](className)} ${block}`;
-			registry.addRule(`${className}-${state}`, cssClass);
+			for (const [breakpoint, breakedStyle] of Object.entries(splitStyle)) {
+				const block = generateClassBlock(breakedStyle, preprocessBlock);
+				if (!block) continue;
+				const cssClass = `${stateMapper[state](className)} ${block}`;
+				registry.addRule(
+					`${className}-${state}-${breakpoint}`,
+					addBreakpointBlock(breakpoint as BreakpointKey, cssClass),
+				);
+			}
 		}
 	};
 
