@@ -50,18 +50,16 @@ const sanitize = (className: unknown) => {
 
 type PreprocessBlockFunction = (block: { [key: string]: unknown }) => { [key: string]: unknown };
 
-const generateClass = (
-	key: string,
-	value: unknown,
-	context: string,
-	addCssContext: (className: string, block: string) => string,
-	preprocessBlock?: PreprocessBlockFunction,
-): [string, string][] => {
-	if (value === undefined) return [];
+const generateAtomicName = (context: string, key: string, value: unknown) =>
+	`ys-${context}${key}-${sanitize(value)}`;
 
+const generateClassBlock = (
+	style: Record<string, unknown>,
+	preprocessBlock?: PreprocessBlockFunction,
+): string | undefined => {
 	preprocessBlock ??= (id) => id;
-	const className = `ys-${context}${key}-${sanitize(value)}`;
-	const block = Object.entries(prefix(preprocessBlock({ [key]: value })))
+	const block = Object.entries(prefix(preprocessBlock(style)))
+		.filter(([_, value]) => value !== undefined)
 		.flatMap(([nKey, nValue]) => {
 			const cssKey = nKey.replace(/[A-Z]/g, "-$&").toLowerCase();
 			return Array.isArray(nValue)
@@ -69,8 +67,8 @@ const generateClass = (
 				: [`${cssKey}: ${nValue};`];
 		})
 		.join(" ");
-	if (!block.length) return [];
-	return [[className, addCssContext(className, `{ ${block} }`)]];
+	if (!block.length) return undefined;
+	return `{ ${block} }`;
 };
 
 const generateAtomicCss = (
@@ -97,27 +95,23 @@ const generateAtomicCss = (
 
 	const statePrefix = state !== "normal" ? state + "_" : "";
 	if (isBreakpoints(value)) {
-		return Object.entries(value).flatMap(([bp, bpValue]) => {
-			return generateClass(
-				key,
-				typeof bpValue === "function" ? bpValue(theme) : bpValue,
-				`${statePrefix}${bp}_`,
-				(className, block) => {
-					const bpWidth = breakpoints[bp as keyof typeof breakpoints];
-					return `@media (min-width: ${bpWidth}px) { ${stateMapper[state](className)} ${block} }`;
-				},
+		return Object.entries(value).map(([bp, bpValue]) => {
+			const bpWidth = breakpoints[bp as keyof typeof breakpoints];
+			const className = generateAtomicName(`${statePrefix}${bp}_`, key, bpValue);
+			const block = generateClassBlock(
+				{ [key]: typeof bpValue === "function" ? bpValue(theme) : bpValue },
 				preprocessBlock,
 			);
+			return [
+				className,
+				`@media (min-width: ${bpWidth}px) { ${stateMapper[state](className)} ${block} }`,
+			];
 		});
 	}
 
-	return generateClass(
-		key,
-		value,
-		statePrefix,
-		(className, block) => `${stateMapper[state](className)} ${block}`,
-		preprocessBlock,
-	);
+	const className = generateAtomicName(statePrefix, key, value);
+	const block = generateClassBlock({ [key]: value }, preprocessBlock);
+	return [[className, `${stateMapper[state](className)} ${block}`]];
 };
 
 const dedupProperties = (...classList: (string[] | undefined)[]) => {
@@ -136,11 +130,7 @@ const dedupProperties = (...classList: (string[] | undefined)[]) => {
 };
 
 export const yoshikiCssToClassNames = (
-	css: Record<string, unknown> & {
-		hover?: Record<string, unknown>;
-		focus?: Record<string, unknown>;
-		press?: Record<string, unknown>;
-	},
+	css: Record<string, unknown> & Partial<WithState<Record<string, unknown>>>,
 	classNames: string[] | undefined,
 	{
 		registry,
@@ -182,15 +172,11 @@ export const yoshikiCssToClassNames = (
 
 	return dedupProperties(
 		processStyles(inline),
-		processStyles(hover, "hover"),
-		processStyles(focus, "focus"),
-		processStyles(press, "press"),
+		processStyles(hover?.self, "hover"),
+		processStyles(focus?.self, "focus"),
+		processStyles(press?.self, "press"),
 		classNames,
 	);
-};
-
-export const useClassId = () => {
-	return "ysc" + useId().replaceAll(":", "-");
 };
 
 export const useYoshiki = () => {
@@ -209,6 +195,8 @@ export const useYoshiki = () => {
 		): { className: string } & Omit<Leftover, "className"> => {
 			const [css, parentKeys] = processStyleListWithoutChild(cssList);
 			const { className, ...leftOver } = leftOverProps ?? {};
+
+			generateChildCss(css, { childPrefix, registry, theme });
 			return {
 				className: yoshikiCssToClassNames(
 					css,
@@ -220,4 +208,49 @@ export const useYoshiki = () => {
 		},
 		theme,
 	};
+};
+
+export const useClassId = () => {
+	return "ysc" + useId().replaceAll(":", "-");
+};
+
+export const generateChildCss = (
+	{ hover, focus, press }: Partial<WithState<Record<string, unknown>>>,
+	{
+		childPrefix,
+		registry,
+		theme,
+		preprocess,
+		preprocessBlock,
+	}: {
+		childPrefix: string;
+		registry: StyleRegistry;
+		theme: Theme;
+		preprocess?: (style: Record<string, unknown>) => Record<string, unknown>;
+		preprocessBlock?: PreprocessBlockFunction;
+	},
+) => {
+	preprocessBlock ??= (id) => id;
+
+	const processStyles = (
+		list: Record<string, Record<string, unknown> | undefined> | undefined,
+		state: keyof WithState<unknown> | "normal",
+	) => {
+		if (!list) return;
+		for (let [name, style] of Object.entries(list)) {
+			if (!style || name === "self") continue;
+			if (preprocess) style = preprocess(style);
+			const className = `${childPrefix}${name}`;
+
+			// TODO process styles breakpoints & theme
+
+			const block = generateClassBlock(style, preprocessBlock);
+			const cssClass = `${stateMapper[state](className)} ${block}`;
+			registry.addRule(`${className}-${state}`, cssClass);
+		}
+	};
+
+	processStyles(hover, "hover");
+	processStyles(focus, "focus");
+	processStyles(press, "press");
 };
