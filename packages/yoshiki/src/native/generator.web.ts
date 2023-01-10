@@ -5,11 +5,11 @@
 import { useInsertionEffect } from "react";
 import { RegisteredStyle } from "react-native";
 import { useTheme } from "../theme";
-import { processStyleList, processStyleListWithoutChild, StyleList } from "../type";
+import { hasState, processStyleList, processStyleListWithoutChild, StyleList } from "../type";
 import { NativeCssFunc } from "./type";
 import createReactDOMStyle from "react-native-web/dist/exports/StyleSheet/compiler/createReactDOMStyle";
 import preprocess from "react-native-web/dist/exports/StyleSheet/preprocess";
-import { useClassId, yoshikiCssToClassNames } from "../web/generator";
+import { useClassId, generateChildCss, yoshikiCssToClassNames } from "../web/generator";
 import { useStyleRegistry } from "../web";
 
 const rnwPreprocess = (block: Record<string, unknown>) => {
@@ -47,6 +47,17 @@ export const useYoshiki = () => {
 			// We use the inlineList and not the inline we have locally since $$css and inlines are not mergable.
 			return [inlineList, { $$css: true, yoshiki: classNames }];
 		};
+
+		if (hasState(css)) {
+			generateChildCss(css, {
+				parentPrefix,
+				childPrefix,
+				registry,
+				theme,
+				preprocess,
+				preprocessBlock: rnwPreprocess,
+			});
+		}
 
 		const loStyle = leftOvers?.style;
 		const style =

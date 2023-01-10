@@ -256,7 +256,7 @@ export const generateChildCss = (
 	preprocessBlock ??= (id) => id;
 
 	const processStyles = (
-		list: Record<string, Record<string, unknown> | undefined> | undefined,
+		list: Record<string, Record<string, unknown>> | undefined,
 		state: keyof WithState<unknown> | "normal",
 	) => {
 		if (!list) return;
