@@ -21,7 +21,7 @@ import {
 } from "../type";
 import { isBreakpoints } from "../utils";
 import { shorthandsFn } from "../shorthands";
-import { StyleFunc, NativeCssFunc } from "./type";
+import { StyleFunc, NativeCssFunc, EnhancedStyle } from "./type";
 import { useReducer, useRef } from "react";
 
 const useBreakpoint = (): number => {
@@ -64,15 +64,17 @@ const useForceRerender = () => {
 	return useReducer((x) => x + 1, 0)[1];
 };
 
+type State = EnhancedStyle<ViewStyle | TextStyle | ImageStyle> | undefined;
+
 export const useYoshiki = () => {
 	const breakpoint = useBreakpoint();
 	const theme = useTheme();
 	const rerender = useForceRerender();
-	const childStyles = useRef<Record<string, ViewStyle | TextStyle | ImageStyle | undefined>>({});
+	const childStyles = useRef<Record<string, State>>({});
 
 	const css: NativeCssFunc = (cssList, leftOvers) => {
 		// The as any is because we can't be sure the style type is right one.
-		const css = processStyleListWithChild(cssList, childStyles.current as any);
+		const { child, ...css } = processStyleListWithChild(cssList, childStyles.current as any);
 
 		const processStyle = (styleList: Record<string, YoshikiStyle<unknown>>) => {
 			const ret = Object.fromEntries(
@@ -83,18 +85,20 @@ export const useYoshiki = () => {
 			return ret;
 		};
 
-		if (hasState<Record<string, ViewStyle>>(css)) {
+		if (hasState<State>(css)) {
 			const { hover, focus, press, ...inline } = css;
 			const { onPressIn, onPressOut, onHoverIn, onHoverOut, onFocus, onBlur } =
 				leftOvers as PressableProps;
 			const ret: StyleFunc<unknown> = ({ hovered, focused, pressed }) => {
 				childStyles.current = {};
+				assignChilds(childStyles.current, child);
 				if (hovered) assignChilds(childStyles.current, hover);
 				if (focused) assignChilds(childStyles.current, focus);
 				if (pressed) assignChilds(childStyles.current, press);
 
 				return [
 					processStyle(inline),
+					processStyle(child?.self ?? {}),
 					hovered && processStyle(hover?.self ?? {}),
 					focused && processStyle(focus?.self ?? {}),
 					pressed && processStyle(press?.self ?? {}),
@@ -138,7 +142,7 @@ export const useYoshiki = () => {
 		} else {
 			return {
 				...leftOvers,
-				style: [processStyle(css), leftOvers?.style],
+				style: [processStyle(css), processStyle(child?.self ?? {}), leftOvers?.style],
 			} as any;
 		}
 	};

@@ -19,9 +19,13 @@ export type WithState<Style> = {
 	focus: { self?: Style; [key: string]: Style | undefined };
 	press: { self?: Style; [key: string]: Style | undefined };
 };
-export type AtLeastOne<T, U = { [K in keyof T]: Pick<T, K> }> = Partial<T> & U[keyof U];
+export type WithChild<Style> = {
+	child: { self?: Style; [key: string]: Style | undefined };
+};
 
-export const hasState = <Style = Record<string, unknown>>(obj: unknown): obj is WithState<Style> => {
+export const hasState = <Style = Record<string, unknown>>(
+	obj: unknown,
+): obj is WithState<Style> => {
 	if (!obj || typeof obj !== "object") return false;
 	return "hover" in obj || "focus" in obj || "press" in obj;
 };

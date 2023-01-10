@@ -7,7 +7,13 @@ import { useId, useInsertionEffect } from "react";
 import { prefix } from "inline-style-prefixer";
 import { Properties as CssProperties } from "csstype";
 import { Theme, breakpoints, useTheme } from "../theme";
-import { WithState, YoshikiStyle, StyleList, processStyleListWithoutChild } from "../type";
+import {
+	WithState,
+	YoshikiStyle,
+	StyleList,
+	processStyleListWithoutChild,
+	WithChild,
+} from "../type";
 import { forceBreakpoint, isBreakpoints } from "../utils";
 import { StyleRegistry, useStyleRegistry } from "./registry";
 import { shorthandsFn } from "../shorthands";
@@ -148,12 +154,13 @@ const dedupProperties = (...classList: (string[] | undefined)[]) => {
 			atomicMap.set(key, name);
 		}
 	}
-	rest.push(...atomicMap.values())
+	rest.push(...atomicMap.values());
 	return rest.join(" ");
 };
 
 export const yoshikiCssToClassNames = (
-	css: Record<string, unknown> & Partial<WithState<Record<string, unknown>>>,
+	css: Record<string, unknown> &
+		Partial<WithState<Record<string, unknown>> & WithChild<Record<string, unknown>>>,
 	classNames: string[] | undefined,
 	{
 		registry,
@@ -169,7 +176,7 @@ export const yoshikiCssToClassNames = (
 		preprocessBlock?: PreprocessBlockFunction;
 	},
 ) => {
-	const { hover, focus, press, ...inline } = css;
+	const { child, hover, focus, press, ...inline } = css;
 
 	const processStyles = (
 		inlineStyle?: Record<string, unknown>,
@@ -189,6 +196,7 @@ export const yoshikiCssToClassNames = (
 
 	return dedupProperties(
 		processStyles(inline),
+		processStyles(child?.self),
 		processStyles(hover?.self, "hover"),
 		processStyles(focus?.self, "focus"),
 		processStyles(press?.self, "press"),
@@ -199,44 +207,18 @@ export const yoshikiCssToClassNames = (
 	);
 };
 
-export const useYoshiki = () => {
-	const theme = useTheme();
-	const registry = useStyleRegistry();
-	const [parentPrefix, childPrefix] = useClassId();
-
-	useInsertionEffect(() => {
-		registry.flushToBrowser();
-	}, [registry]);
-
-	return {
-		css: <Leftover>(
-			cssList: StyleList<CssObject | string>,
-			leftOverProps?: Leftover & { className?: string },
-		): { className: string } & Omit<Leftover, "className"> => {
-			const [css, parentKeys] = processStyleListWithoutChild(cssList);
-			const { className, ...leftOver } = leftOverProps ?? {};
-
-			generateChildCss(css, { parentPrefix, childPrefix, registry, theme });
-			return {
-				className: yoshikiCssToClassNames(
-					css,
-					[...parentKeys.map((x) => `${childPrefix}${x}`), ...(className?.split(" ") ?? [])],
-					{ registry, theme, parentPrefix },
-				),
-				...leftOver,
-			} as any;
-		},
-		theme,
-	};
-};
-
 export const useClassId = () => {
 	const id = useId().replaceAll(":", "-");
 	return ["ysp" + id, "ysc" + id] as const;
 };
 
 export const generateChildCss = (
-	{ hover, focus, press }: Partial<WithState<Record<string, unknown>>>,
+	{
+		hover,
+		focus,
+		press,
+		child,
+	}: Partial<WithState<Record<string, unknown>> & WithChild<Record<string, unknown>>>,
 	{
 		parentPrefix,
 		childPrefix,
@@ -305,7 +287,39 @@ export const generateChildCss = (
 		}
 	};
 
+	processStyles(child, "normal");
 	processStyles(hover, "hover");
 	processStyles(focus, "focus");
 	processStyles(press, "press");
+};
+
+export const useYoshiki = () => {
+	const theme = useTheme();
+	const registry = useStyleRegistry();
+	const [parentPrefix, childPrefix] = useClassId();
+
+	useInsertionEffect(() => {
+		registry.flushToBrowser();
+	}, [registry]);
+
+	return {
+		css: <Leftover>(
+			cssList: StyleList<CssObject | string> & Partial<WithState<CssObject>> & WithChild<CssObject>,
+			leftOverProps?: Leftover & { className?: string },
+		): { className: string } & Omit<Leftover, "className"> => {
+			const [css, parentKeys] = processStyleListWithoutChild(cssList);
+			const { className, ...leftOver } = leftOverProps ?? {};
+
+			generateChildCss(css, { parentPrefix, childPrefix, registry, theme });
+			return {
+				className: yoshikiCssToClassNames(
+					css,
+					[...parentKeys.map((x) => `${childPrefix}${x}`), ...(className?.split(" ") ?? [])],
+					{ registry, theme, parentPrefix },
+				),
+				...leftOver,
+			} as any;
+		},
+		theme,
+	};
 };

@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import { WithState, YoshikiStyle, StyleList } from "../type";
+import { WithState, YoshikiStyle, StyleList, WithChild } from "../type";
 import { shorthandsFn } from "../shorthands";
 import { ImageStyle, PressableProps, StyleProp, TextStyle, ViewStyle } from "react-native";
 import { Theme } from "../theme";
@@ -43,37 +43,45 @@ export type StyleFunc<Style> = (state: {
 type AddLO<T, LO> = [LO] extends [never] ? T : Omit<LO, "style"> & T;
 type NativeStyle = ViewStyle | TextStyle | ImageStyle;
 
+type CssList<Style> = StyleList<
+	(EnhancedStyle<Style> & Partial<WithChild<EnhancedStyle<NativeStyle>>>) | string
+>;
+type CssListWithState<Style> = StyleList<
+	| (EnhancedStyle<Style> &
+			Partial<WithChild<EnhancedStyle<NativeStyle>> & WithState<EnhancedStyle<NativeStyle>>>)
+	| string
+>;
+
 declare function nativeCss<Leftover = never>(
-	cssList: StyleList<EnhancedStyle<ViewStyle> | string>,
+	cssList: CssList<ViewStyle>,
 	leftOvers?: Leftover & { style?: StyleProp<ViewStyle> | null },
 ): AddLO<{ style?: ViewStyle }, Leftover>;
 declare function nativeCss<Leftover = never>(
-	cssList: StyleList<
-		(EnhancedStyle<ViewStyle> & Partial<WithState<EnhancedStyle<NativeStyle>>>) | string
-	>,
+	cssList: CssListWithState<ViewStyle>,
 	leftOvers?: Leftover & { style?: StyleProp<ViewStyle> | StyleFunc<StyleProp<ViewStyle>> | null },
 ): AddLO<PressableProps, Leftover>;
 
 declare function nativeCss<Leftover = never>(
-	cssList: StyleList<EnhancedStyle<TextStyle> | string>,
+	cssList: CssList<TextStyle>,
 	leftOvers?: Leftover & { style?: StyleProp<TextStyle> | null },
 ): AddLO<{ style?: TextStyle }, Leftover>;
 declare function nativeCss<Leftover = never>(
-	cssList: StyleList<
-		(EnhancedStyle<TextStyle> & Partial<WithState<EnhancedStyle<NativeStyle>>>) | string
-	>,
+	cssList: CssListWithState<TextStyle>,
 	leftOvers?: Leftover & { style?: StyleProp<TextStyle> | StyleFunc<StyleProp<TextStyle>> | null },
 ): AddLO<PressableProps, Leftover>;
 
 declare function nativeCss<Leftover = never>(
-	cssList: StyleList<EnhancedStyle<ImageStyle> | string>,
+	cssList: CssList<ImageStyle>,
 	leftOvers?: Leftover & { style?: StyleProp<ImageStyle> | null },
 ): AddLO<{ style?: ImageStyle }, Leftover>;
 declare function nativeCss<Leftover = never>(
-	cssList: StyleList<
-		(EnhancedStyle<ImageStyle> & Partial<WithState<EnhancedStyle<NativeStyle>>>) | string
-	>,
-	leftOvers?: Leftover & { style?: StyleProp<ImageStyle> | StyleFunc<StyleProp<ImageStyle>> | null },
-): AddLO<PressableProps & { style?: StyleProp<ImageStyle> | StyleFunc<StyleProp<ImageStyle>> }, Leftover>;
+	cssList: CssListWithState<ImageStyle>,
+	leftOvers?: Leftover & {
+		style?: StyleProp<ImageStyle> | StyleFunc<StyleProp<ImageStyle>> | null;
+	},
+): AddLO<
+	PressableProps & { style?: StyleProp<ImageStyle> | StyleFunc<StyleProp<ImageStyle>> },
+	Leftover
+>;
 
 export type NativeCssFunc = typeof nativeCss;
