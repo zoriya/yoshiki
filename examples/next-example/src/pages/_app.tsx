@@ -43,27 +43,15 @@ const AppName = () => {
 	);
 };
 
-const RootRegistry = ({ children }: { children: ReactNode }) => {
-	const registry = useMemo(() => createStyleRegistry(), []);
-
-	useServerInsertedHTML(() => {
-		return registry.flushToComponent();
-	});
-
-	return <StyleRegistryProvider registry={registry}>{children}</StyleRegistryProvider>;
-};
-
 const App = ({ Component, pageProps }: AppProps) => {
 	useMobileHover();
 	const auto = useAutomaticTheme("theme", theme);
 
 	return (
-		<RootRegistry>
-			<ThemeProvider theme={{ ...theme, ...auto }}>
-				<Component {...pageProps} />
-				<AppName />
-			</ThemeProvider>
-		</RootRegistry>
+		<ThemeProvider theme={{ ...theme, ...auto }}>
+			<Component {...pageProps} />
+			<AppName />
+		</ThemeProvider>
 	);
 };
 

@@ -54,6 +54,6 @@ body { ${cssVariables.map((x) => `${x.name}: ${x.light}`).join(";")} }
 	body { ${cssVariables.map((x) => `${x.name}: ${x.dark}`).join(";")} }
 }
 	`;
-	registry.addRule(`automatic-theme-${key}`, rule);
+	registry.addRule({ type: "user", key, state: "normal", breakpoint: "default" }, rule);
 	return auto;
 };

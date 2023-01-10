@@ -19,7 +19,7 @@ const rnwPreprocess = (block: Record<string, unknown>) => {
 export const useYoshiki = () => {
 	const registry = useStyleRegistry();
 	const theme = useTheme();
-	const childPrefix = useClassId();
+	const [parentPrefix, childPrefix] = useClassId();
 
 	useInsertionEffect(() => {
 		registry.flushToBrowser();
@@ -37,6 +37,7 @@ export const useYoshiki = () => {
 				css,
 				[...parentKeys.map((x) => `${childPrefix}${x}`), ...(overrides?.split(" ") ?? [])],
 				{
+					parentPrefix,
 					registry,
 					theme,
 					preprocessBlock: rnwPreprocess,

@@ -85,15 +85,19 @@ const generateAtomicCss = (
 	{
 		theme,
 		preprocessBlock,
+		registry,
 	}: {
 		theme: Theme;
 		preprocessBlock?: PreprocessBlockFunction;
+		registry: StyleRegistry;
 	},
-): [string, string][] => {
+): string[] => {
 	if (key in shorthandsFn) {
 		const expanded = shorthandsFn[key as keyof typeof shorthandsFn](value as any);
 		return Object.entries(expanded)
-			.map(([eKey, eValue]) => generateAtomicCss(eKey, eValue, state, { theme, preprocessBlock }))
+			.map(([eKey, eValue]) =>
+				generateAtomicCss(eKey, eValue, state, { theme, preprocessBlock, registry }),
+			)
 			.flat();
 	}
 	if (typeof value === "function") {
@@ -109,34 +113,43 @@ const generateAtomicCss = (
 				preprocessBlock,
 			);
 			if (!block) return [];
-			return [
-				[
-					className,
-					addBreakpointBlock(bp as BreakpointKey, `${stateMapper[state](className)} ${block}`),
-				],
-			];
+			registry.addRule(
+				{ type: "atomic", key: `${key}:${bpValue}`, state, breakpoint: bp as BreakpointKey },
+				`${stateMapper[state](className)} ${block}`,
+			);
+			return className;
 		});
 	}
 
 	const className = generateAtomicName(statePrefix, key, value);
 	const block = generateClassBlock({ [key]: value }, preprocessBlock);
 	if (!block) return [];
-	return [[className, `${stateMapper[state](className)} ${block}`]];
+	registry.addRule(
+		{ type: "atomic", key: `${key}:${value}`, state, breakpoint: "default" },
+		`${stateMapper[state](className)} ${block}`,
+	);
+	return [className];
 };
 
 const dedupProperties = (...classList: (string[] | undefined)[]) => {
-	const propMap = new Map<string, string>();
+	const atomicMap = new Map<string, string>();
+	const rest: string[] = [];
 	for (const classes of classList) {
 		if (!classes) continue;
 
 		for (const name of classes) {
 			if (!name) continue;
+			if (!name.startsWith("ys-")) {
+				rest.push(name);
+				continue;
+			}
 			// example ys-background-blue or ys-sm_background-red
 			const key = name.substring(3, name.lastIndexOf("-"));
-			propMap.set(key, name);
+			atomicMap.set(key, name);
 		}
 	}
-	return Array.from(propMap.values()).join(" ");
+	rest.push(...atomicMap.values())
+	return rest.join(" ");
 };
 
 export const yoshikiCssToClassNames = (
@@ -165,21 +178,13 @@ export const yoshikiCssToClassNames = (
 		if (!inlineStyle) return [];
 		if (preprocess) inlineStyle = preprocess(inlineStyle);
 
-		// I'm sad that traverse is not a thing in JS.
-		const [localClassNames, localStyle] = Object.entries(inlineStyle).reduce<[string[], string[]]>(
-			(acc, [key, value]) => {
-				const n = generateAtomicCss(key, value, state ?? "normal", {
-					theme,
-					preprocessBlock,
-				});
-				acc[0].push(...n.map((x) => x[0]));
-				acc[1].push(...n.map((x) => x[1]));
-				return acc;
-			},
-			[[], []],
+		return Object.entries(inlineStyle).flatMap(([key, value]) =>
+			generateAtomicCss(key, value, state ?? "normal", {
+				theme,
+				preprocessBlock,
+				registry,
+			}),
 		);
-		registry.addRules(localClassNames, localStyle);
-		return localClassNames;
 	};
 
 	return dedupProperties(
@@ -293,7 +298,7 @@ export const generateChildCss = (
 				if (!block) continue;
 				const cssClass = `${stateMapper[state](parentName)} .${className} ${block}`;
 				registry.addRule(
-					`${className}-${state}-${breakpoint}`,
+					{ type: "atomic", key: className, breakpoint: breakpoint as BreakpointKey, state },
 					addBreakpointBlock(breakpoint as BreakpointKey, cssClass),
 				);
 			}

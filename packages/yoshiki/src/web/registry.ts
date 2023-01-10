@@ -5,24 +5,30 @@
 
 import { createContext, createElement, ReactNode, useContext } from "react";
 import { breakpoints } from "../theme";
+import { WithState } from "../type";
 
-function findLastIndex<T>(
-	array: readonly T[],
-	predicate: (element: T, index: number) => boolean,
-	startIndex?: number,
-): number {
-	for (let i = startIndex ?? array.length - 1; i >= 0; i--) {
-		if (predicate(array[i], i)) {
-			return i;
-		}
-	}
-	return -1;
-}
+type StyleKey = {
+	type: "atomic" | "general" | "user";
+	key: string;
+	breakpoint: keyof typeof breakpoints | "default";
+	state: keyof WithState<unknown> | "normal";
+};
+const keyToStr = ({ type, key, breakpoint, state }: StyleKey) => {
+	return `${type[0]}-${key}-${breakpoint}-${state}`;
+};
+type StyleRule = { key: StyleKey; strKey: string; css: string };
 
 export class StyleRegistry {
 	private completed: string[] = [];
-	private rules: [string, string][] = [];
+	private rules: [StyleKey, string][] = [];
 	private styleElement: HTMLStyleElement | null = null;
+	private cssOutput: Record<StyleKey["state"], Record<StyleKey["breakpoint"], string[]>> =
+		Object.fromEntries(
+			["normal", "hover", "focus", "press"].map((x) => [
+				x,
+				Object.fromEntries(Object.keys({ default: 0, ...breakpoints }).map((bp) => [bp, []])),
+			]),
+		) as any;
 
 	constructor(isDefault?: true) {
 		if (isDefault) {
@@ -30,46 +36,36 @@ export class StyleRegistry {
 				"Warning: Yoshiki was used without a top level StyleRegistry. SSR won't be supported.",
 			);
 		}
+		if (typeof window !== "undefined") this.hydrate();
 	}
 
-	addRule(key: string, rule: string) {
-		if (this.rules.find(([eKey]) => key === eKey)) return;
+	addRule(key: StyleKey, rule: string) {
+		if (this.rules.find(([eKey]) => Object.is(key, eKey))) return;
 		this.rules.push([key, rule]);
 	}
 
-	addRules(keys: string[], rules: string[]) {
+	addRules(keys: StyleKey[], rules: string[]) {
 		// I'm sad that sequence is not a thing...
 		for (let i = 0; i < keys.length; i++) {
 			this.addRule(keys[i], rules[i]);
 		}
 	}
 
-	flush(): string[] {
-		const ret = this.rules.filter(([key]) => !this.completed.includes(key));
+	flush(): StyleRule[] {
+		const toFlush = this.rules
+			.map(([key, css]) => ({ key, strKey: keyToStr(key), css: css }))
+			.filter(({ strKey }) => !this.completed.includes(strKey));
 		this.rules = [];
-		this.completed.push(...ret.map(([key]) => key));
-		return ret.map(([, value]) => value);
+		this.completed.push(...toFlush.map(({ strKey }) => strKey));
+		return toFlush;
 	}
 
 	flushToBrowser() {
-		const toMerge: string[] = [];
-
 		if (!this.styleElement) {
-			const styles = document.querySelectorAll<HTMLStyleElement>("style[data-yoshiki]");
-			for (const style of styles) {
-				this.completed.push(...(style.dataset.yoshiki ?? " ").split(" "));
-				if (!this.styleElement) {
-					this.styleElement = style;
-					style.dataset.yoshiki = "";
-				} else {
-					if (style.textContent) toMerge.push(...style.textContent.split("\n"));
-					style.remove();
-				}
-			}
+			this.hydrate();
 		}
 
-		// If we have something to merge, do it before a flush.
-		const toFlush = toMerge.length ? toMerge : this.flush();
+		const toFlush = this.flush();
 		if (!toFlush.length) return;
 
 		if (!this.styleElement) {
@@ -78,11 +74,8 @@ export class StyleRegistry {
 				`<style data-yoshiki="">${this.toStyleString(toFlush)}</style>`,
 			);
 		} else {
-			this.styleElement.textContent = this.toStyleString(toFlush, this.styleElement.textContent);
+			this.styleElement.textContent = this.toStyleString(toFlush);
 		}
-
-		// Since we did not flush earlier to merge, we do it now.
-		if (toMerge.length) this.flushToBrowser();
 	}
 
 	flushToComponent() {
@@ -95,63 +88,48 @@ export class StyleRegistry {
 		});
 	}
 
-	toStyleString(classes: string[], existingStyle?: string | null) {
-		const newChunks = this.splitInChunks(classes);
-		if (!existingStyle) {
-			return newChunks
-				.map((x, i) => (x.length ? x.join("\n") + `\n/*${i}*/` : null))
-				.filter((x) => x)
-				.join("\n");
+	toStyleString(rules: StyleRule[]): string {
+		for (const { key, css } of rules) {
+			this.cssOutput[key.state][key.breakpoint].push(css);
 		}
-
-		const lines = existingStyle.split("\n");
-		const comReg = new RegExp("/\\*(\\d+)\\*/");
-
-		for (const [i, chunk] of newChunks.entries()) {
-			if (!chunk.length) continue;
-			const pos = findLastIndex(lines, (x) => {
-				const match = comReg.exec(x);
-				if (!match) return false;
-				return parseInt(match[1]) <= i;
-			});
-
-			if (pos === -1) {
-				// No section with a same or lower priority exists, create one.
-				lines.splice(0, 0, ...chunk, `/*${i}*/`);
-			} else if (!lines[pos].includes(i.toString())) {
-				// Our session does not exist, create one at the right place.
-				lines.splice(pos + 1, 0, ...chunk, `/*${i}*/`);
-			} else {
-				// Append in our section.
-				lines.splice(pos, 0, ...chunk);
-			}
-		}
-
-		return lines.join("\n");
+		return Object.entries(this.cssOutput)
+			.map(([state, bp]) =>
+				Object.entries(bp)
+					.map(([breakpoint, css]) => `/* ${state}-${breakpoint} */\n${css.join("\n")}\n`)
+					.join("\n"),
+			)
+			.join("\n");
 	}
 
-	splitInChunks(classes: string[]): string[][] {
-		const chunks: string[][][] = [...Array(4 /* Normal, Hover, Focus and Active*/)].map(() =>
-			[...Array(1 + Object.keys(breakpoints).length)].map(() => []),
-		);
+	hydrate() {
+		const styles = document.querySelectorAll<HTMLStyleElement>("style[data-yoshiki]");
+		for (const style of styles) {
+			this.completed.push(...(style.dataset.yoshiki ?? "").split(" "));
+			if (style.textContent) this.hydrateStyle(style.textContent);
+			if (!this.styleElement) {
+				this.styleElement = style;
+				style.dataset.yoshiki = "";
+			} else {
+				style.remove();
+			}
+		}
+	}
 
-		for (const cl of classes) {
-			const start = cl.indexOf(".ys-");
-			const cn = cl.substring(start, cl.indexOf("-", start + 4));
-			const modifier = cn.includes("_") ? cn.substring(4, cn.lastIndexOf("_")) : null;
+	hydrateStyle(css: string) {
+		const comReg = new RegExp("/\\* (\\w+):(\\w) \\*/");
+		let state: StyleKey["state"] = "normal";
+		let bp: StyleKey["breakpoint"] = "default";
 
-			if (!modifier) {
-				chunks[0][0].push(cl);
+		for (const line of css.split("\n")) {
+			const match = line.match(comReg);
+			if (!match) {
+				this.cssOutput[state][bp].push(line);
 				continue;
 			}
-
-			const type = ["hover", "focus", "press"].findIndex((x) => modifier.includes(x)) + 1;
-			const bp = Object.keys(breakpoints).findIndex((x) => modifier.includes(x)) + 1;
-
-			chunks[type][bp].push(cl);
+			// Not really safe but will break only if the user modifies the css manually.
+			state = match[1] as StyleKey["state"];
+			bp = match[2] as StyleKey["breakpoint"];
 		}
-
-		return chunks.flat();
 	}
 }
 
