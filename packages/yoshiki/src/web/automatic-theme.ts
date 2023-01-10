@@ -48,11 +48,17 @@ export const useAutomaticTheme = <T extends Record<string, Child>>(
 	};
 
 	const auto = Object.fromEntries(traverseEntries(theme.light, theme.dark, toAuto)) as ToChild<T>;
-	const rule = `
-body { ${cssVariables.map((x) => `${x.name}: ${x.light}`).join(";")} }
-@media (prefers-color-scheme: dark) { body { ${cssVariables
+	const ruleLight = `body { ${cssVariables.map((x) => `${x.name}: ${x.light}`).join(";")} }`;
+	const ruleDark = `@media (prefers-color-scheme: dark) { body { ${cssVariables
 		.map((x) => `${x.name}: ${x.dark}`)
 		.join(";")} } }`;
-	registry.addRule({ type: "user", key, state: "normal", breakpoint: "default" }, rule);
+	registry.addRule(
+		{ type: "user", key: key + "-light", state: "normal", breakpoint: "default" },
+		ruleLight,
+	);
+	registry.addRule(
+		{ type: "user", key: key + "-dark", state: "normal", breakpoint: "default" },
+		ruleDark,
+	);
 	return auto;
 };

@@ -13,6 +13,7 @@ import {
 	Theme,
 	ThemeProvider,
 	useAutomaticTheme,
+	useStyleRegistry,
 } from "yoshiki";
 
 declare module "yoshiki" {
@@ -43,7 +44,7 @@ const AppName = () => {
 };
 
 const BrowserOnlyRegistry = ({ children }: { children: JSX.Element }) => {
-	const registry = useMemo(() => createStyleRegistry(), []);
+	const registry = useStyleRegistry();
 	if (typeof window === "undefined") return children;
 	return <StyleRegistryProvider registry={registry}>{children}</StyleRegistryProvider>;
 };

@@ -7,28 +7,36 @@ import { createContext, createElement, ReactNode, useContext } from "react";
 import { breakpoints } from "../theme";
 import { WithState } from "../type";
 
+const typeMapper: Record<"a" | "g" | "u", StyleKey["type"]> = {
+	a: "atomic",
+	g: "general",
+	u: "user",
+};
 type StyleKey = {
 	type: "atomic" | "general" | "user";
 	key: string;
 	breakpoint: keyof typeof breakpoints | "default";
 	state: keyof WithState<unknown> | "normal";
 };
-const keyToStr = ({ type, key, breakpoint, state }: StyleKey) => {
-	return `${type[0]}-${key}-${breakpoint}-${state}`;
-};
-type StyleRule = { key: StyleKey; strKey: string; css: string };
+type StyleRule = { key: StyleKey; css: string };
 
 export class StyleRegistry {
-	private completed: string[] = [];
-	private rules: [StyleKey, string][] = [];
+	private rules: StyleRule[] = [];
 	private styleElement: HTMLStyleElement | null = null;
-	private cssOutput: Record<StyleKey["state"], Record<StyleKey["breakpoint"], string[]>> =
-		Object.fromEntries(
-			["normal", "hover", "focus", "press"].map((x) => [
-				x,
-				Object.fromEntries(Object.keys({ default: 0, ...breakpoints }).map((bp) => [bp, []])),
-			]),
-		) as any;
+	private cssOutput: Record<
+		StyleKey["state"],
+		Record<StyleKey["breakpoint"], Record<StyleKey["type"], Record<string, string>>>
+	> = Object.fromEntries(
+		["normal", "hover", "focus", "press"].map((x) => [
+			x,
+			Object.fromEntries(
+				Object.keys({ default: 0, ...breakpoints }).map((bp) => [
+					bp,
+					Object.fromEntries(["atomic", "general", "user"].map((x) => [x, {}])),
+				]),
+			),
+		]),
+	) as any;
 
 	constructor(isDefault?: true) {
 		if (isDefault) {
@@ -39,24 +47,8 @@ export class StyleRegistry {
 	}
 
 	addRule(key: StyleKey, rule: string) {
-		if (this.rules.find(([eKey]) => Object.is(key, eKey))) return;
-		this.rules.push([key, rule]);
-	}
-
-	addRules(keys: StyleKey[], rules: string[]) {
-		// I'm sad that sequence is not a thing...
-		for (let i = 0; i < keys.length; i++) {
-			this.addRule(keys[i], rules[i]);
-		}
-	}
-
-	flush(): StyleRule[] {
-		const toFlush = this.rules
-			.map(([key, css]) => ({ key, strKey: keyToStr(key), css: css }))
-			.filter(({ strKey }) => !this.completed.includes(strKey));
-		this.rules = [];
-		this.completed.push(...toFlush.map(({ strKey }) => strKey));
-		return toFlush;
+		if (this.rules.find(({ key: eKey }) => Object.is(key, eKey))) return;
+		this.rules.push({ key, css: rule });
 	}
 
 	flushToBrowser() {
@@ -64,47 +56,53 @@ export class StyleRegistry {
 			this.hydrate();
 		}
 
-		const toFlush = this.flush();
-		if (!toFlush.length) return;
+		const [css] = this.flushToStyleString();
 
 		if (!this.styleElement) {
-			document.head.insertAdjacentHTML(
-				"beforeend",
-				`<style data-yoshiki="">${this.toStyleString(toFlush)}</style>`,
-			);
+			document.head.insertAdjacentHTML("beforeend", `<style data-yoshiki="">${css}</style>`);
 		} else {
-			this.styleElement.textContent = this.toStyleString(toFlush);
+			this.styleElement.textContent = css;
 		}
 	}
 
 	flushToComponent() {
-		const toFlush = this.flush();
-		if (!toFlush.length) return null;
+		const [css, keys] = this.flushToStyleString();
 		// JSX can't be used since the compiler is set to react-native mode.
 		return createElement("style", {
-			"data-yoshiki": this.completed.join(" "),
-			children: this.toStyleString(toFlush),
+			"data-yoshiki": keys,
+			children: css,
 		});
 	}
 
-	toStyleString(rules: StyleRule[]): string {
-		for (const { key, css } of rules) {
-			this.cssOutput[key.state][key.breakpoint].push(css);
+	flushToStyleString(): [string, string] {
+		for (const { key, css } of this.rules) {
+			this.cssOutput[key.state][key.breakpoint][key.type][key.key] = css;
 		}
-		return Object.entries(this.cssOutput)
+		this.rules = [];
+
+		const keys: string[] = [];
+		const css = Object.entries(this.cssOutput)
 			.flatMap(([state, bp]) =>
-				Object.entries(bp).flatMap(([breakpoint, css]) =>
-					css.length ? ["", `/* ${state}-${breakpoint} */`, ...css] : [],
+				Object.entries(bp).flatMap(([breakpoint, tp]) =>
+					Object.entries(tp).flatMap(([type, css]) => {
+						const cssEntries = Object.entries(css);
+						keys.push(...cssEntries.map((x) => x[0]));
+						return cssEntries.length
+							? ["", `/* ${type[0]}-${state}-${breakpoint} */`, ...cssEntries.map((x) => x[1])]
+							: //
+							  [];
+					}),
 				),
 			)
 			.join("\n");
+		return [css, keys.join(" ")];
 	}
 
 	hydrate() {
 		const styles = document.querySelectorAll<HTMLStyleElement>("style[data-yoshiki]");
 		for (const style of styles) {
-			this.completed.push(...(style.dataset.yoshiki ?? "").split(" "));
-			if (style.textContent) this.hydrateStyle(style.textContent);
+			if (style.textContent && style.dataset.yoshiki)
+				this.hydrateStyle(style.textContent, style.dataset.yoshiki);
 			if (!this.styleElement) {
 				this.styleElement = style;
 				style.dataset.yoshiki = "";
@@ -114,22 +112,32 @@ export class StyleRegistry {
 		}
 	}
 
-	hydrateStyle(css: string) {
-		const comReg = new RegExp("/\\* (\\w+)-(\\w+) \\*/");
+	hydrateStyle(css: string, keysString: string) {
+		const comReg = new RegExp("/\\* (\\w)-(\\w+)-(\\w+) \\*/");
+		const keys = keysString.split(" ");
+
+		let type: StyleKey["type"] = "atomic";
 		let state: StyleKey["state"] = "normal";
 		let bp: StyleKey["breakpoint"] = "default";
+		let index = 0;
 
 		for (const line of css.split("\n")) {
 			const match = line.match(comReg);
 			if (match) {
 				// Not really safe but will break only if the user modifies the css manually.
-				state = match[1] as StyleKey["state"];
-				bp = match[2] as StyleKey["breakpoint"];
+				type = typeMapper[match[1] as "a" | "g" | "u"];
+				state = match[2] as StyleKey["state"];
+				bp = match[3] as StyleKey["breakpoint"];
 				continue;
 			}
 
-			if (line.length)
-				this.cssOutput[state][bp].push(line);
+			if (!line.length) continue;
+			if (keys.length <= index) {
+				console.error("Yoshiki: Hydratation mistake. There are more css rules than css keys.");
+				return;
+			}
+			this.cssOutput[state][bp][type][keys[index]] = line;
+			index++;
 		}
 	}
 }

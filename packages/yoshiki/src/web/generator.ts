@@ -298,7 +298,7 @@ export const generateChildCss = (
 				if (!block) continue;
 				const cssClass = `${stateMapper[state](parentName)} .${className} ${block}`;
 				registry.addRule(
-					{ type: "atomic", key: className, breakpoint: breakpoint as BreakpointKey, state },
+					{ type: "general", key: className, breakpoint: breakpoint as BreakpointKey, state },
 					addBreakpointBlock(breakpoint as BreakpointKey, cssClass),
 				);
 			}
