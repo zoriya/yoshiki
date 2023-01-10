@@ -69,8 +69,14 @@ type State = EnhancedStyle<ViewStyle | TextStyle | ImageStyle> | undefined;
 export const useYoshiki = () => {
 	const breakpoint = useBreakpoint();
 	const theme = useTheme();
-	const rerender = useForceRerender();
+	const forceRerender = useForceRerender();
 	const childStyles = useRef<Record<string, State>>({});
+	const ephemeralChildStyles: Record<string, State> = {};
+
+	const rerender = () => {
+		childStyles.current = ephemeralChildStyles;
+		forceRerender();
+	};
 
 	const css: NativeCssFunc = (cssList, leftOvers) => {
 		// The as any is because we can't be sure the style type is right one.
@@ -85,16 +91,17 @@ export const useYoshiki = () => {
 			return ret;
 		};
 
+		// Directly mutate the current to use it on childs (since there is no state change to cause a rerender).
+		assignChilds(childStyles.current, child);
+
 		if (hasState<State>(css)) {
 			const { hover, focus, press, ...inline } = css;
 			const { onPressIn, onPressOut, onHoverIn, onHoverOut, onFocus, onBlur } =
 				leftOvers as PressableProps;
 			const ret: StyleFunc<unknown> = ({ hovered, focused, pressed }) => {
-				childStyles.current = {};
-				assignChilds(childStyles.current, child);
-				if (hovered) assignChilds(childStyles.current, hover);
-				if (focused) assignChilds(childStyles.current, focus);
-				if (pressed) assignChilds(childStyles.current, press);
+				if (hovered) assignChilds(ephemeralChildStyles, hover);
+				if (focused) assignChilds(ephemeralChildStyles, focus);
+				if (pressed) assignChilds(ephemeralChildStyles, press);
 
 				return [
 					processStyle(inline),
