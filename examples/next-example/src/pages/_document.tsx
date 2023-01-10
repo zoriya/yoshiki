@@ -4,7 +4,19 @@
 //
 
 import { StyleRegistryProvider, createStyleRegistry } from "yoshiki";
-import Document, { DocumentContext } from "next/document";
+import { DocumentContext, Html, Head, Main, NextScript } from "next/document";
+
+const Document = () => {
+	return (
+		<Html>
+			<Head />
+			<body>
+				<Main />
+				<NextScript />
+			</body>
+		</Html>
+	);
+};
 
 Document.getInitialProps = async (ctx: DocumentContext) => {
 	const renderPage = ctx.renderPage;

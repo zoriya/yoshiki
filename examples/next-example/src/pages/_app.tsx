@@ -5,7 +5,6 @@
 
 import { AppProps } from "next/app";
 import { ReactNode, useMemo } from "react";
-import { useServerInsertedHTML } from "next/navigation";
 import {
 	useYoshiki,
 	createStyleRegistry,
@@ -43,15 +42,23 @@ const AppName = () => {
 	);
 };
 
+const BrowserOnlyRegistry = ({ children }: { children: JSX.Element }) => {
+	const registry = useMemo(() => createStyleRegistry(), []);
+	if (typeof window === "undefined") return children;
+	return <StyleRegistryProvider registry={registry}>{children}</StyleRegistryProvider>;
+};
+
 const App = ({ Component, pageProps }: AppProps) => {
 	useMobileHover();
 	const auto = useAutomaticTheme("theme", theme);
 
 	return (
-		<ThemeProvider theme={{ ...theme, ...auto }}>
-			<Component {...pageProps} />
-			<AppName />
-		</ThemeProvider>
+		<BrowserOnlyRegistry>
+			<ThemeProvider theme={{ ...theme, ...auto }}>
+				<Component {...pageProps} />
+				<AppName />
+			</ThemeProvider>
+		</BrowserOnlyRegistry>
 	);
 };
 
