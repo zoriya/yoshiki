@@ -62,7 +62,7 @@ declare function nativeCss<Leftover = never>(
 	cssList: StyleList<
 		(EnhancedStyle<TextStyle> & Partial<WithState<EnhancedStyle<NativeStyle>>>) | string
 	>,
-	leftOvers?: Leftover & { style?: StyleProp<TextStyle> | StyleFunc<StyleProp<ViewStyle>> | null },
+	leftOvers?: Leftover & { style?: StyleProp<TextStyle> | StyleFunc<StyleProp<TextStyle>> | null },
 ): AddLO<PressableProps, Leftover>;
 
 declare function nativeCss<Leftover = never>(
@@ -73,7 +73,7 @@ declare function nativeCss<Leftover = never>(
 	cssList: StyleList<
 		(EnhancedStyle<ImageStyle> & Partial<WithState<EnhancedStyle<NativeStyle>>>) | string
 	>,
-	leftOvers?: Leftover & { style?: StyleProp<ImageStyle> | StyleFunc<StyleProp<ViewStyle>> | null },
-): AddLO<PressableProps, Leftover>;
+	leftOvers?: Leftover & { style?: StyleProp<ImageStyle> | StyleFunc<StyleProp<ImageStyle>> | null },
+): AddLO<PressableProps & { style?: StyleProp<ImageStyle> | StyleFunc<StyleProp<ImageStyle>> }, Leftover>;
 
 export type NativeCssFunc = typeof nativeCss;

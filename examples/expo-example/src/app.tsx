@@ -4,10 +4,11 @@
 //
 
 import { StatusBar } from "expo-status-bar";
-import { Text, View, Pressable, TextProps } from "react-native";
+import { Text, View, Pressable, TextProps, Image } from "react-native";
 import { registerRootComponent } from "expo";
 import { Stylable, useYoshiki, px, md } from "yoshiki/native";
 import { H1 } from "@expo/html-elements";
+import { ImageProps } from "react-native";
 
 const CustomBox = ({ color, ...props }: { color: string } & Stylable) => {
 	const { css } = useYoshiki();
@@ -46,11 +47,11 @@ const BoxWithoutProps = (props: Stylable) => {
 						},
 						focus: {
 							self: {
-								bg: "yellow"
+								bg: "yellow",
 							},
 							text: {
 								transform: [{ scale: 2 }],
-								color: "green"
+								color: "green",
 							},
 						},
 					},
@@ -93,6 +94,7 @@ const P = (props: TextProps) => {
 
 function App() {
 	const { css } = useYoshiki();
+	const test: ImageProps = {};
 
 	return (
 		<View
@@ -107,13 +109,15 @@ function App() {
 			<Text>Open up App.tsx to start working on your app!</Text>
 			<CustomBox color="black" {...css({ borderColor: "red", borderWidth: px(3) })} />
 			<BoxWithoutProps {...css({ borderColor: "red", borderWidth: px(3) })} />
-			<Pressable android_ripple={{ color: "black"}}>
+			<Pressable android_ripple={{ color: "black" }}>
 				<P
 					accessibilityLabel="toto"
-					style={[undefined, false, { color: "red" }, [{ color: "green" }, false]]}
+					{...css([undefined, false, { color: "red" }, [{ color: "green" }, false]])}
 				>
 					Test
 				</P>
+				<Image {...css({ width: px(100) }, test)} />
+				<Image {...css({ width: px(100), resizeMode: "cover" })} />
 			</Pressable>
 			<StatusBar style="auto" />
 		</View>
