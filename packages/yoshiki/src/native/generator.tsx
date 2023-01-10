@@ -3,7 +3,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import { PressableProps, useWindowDimensions, ViewStyle } from "react-native";
+import {
+	ImageStyle,
+	PressableProps,
+	TextStyle,
+	useWindowDimensions,
+	ViewStyle,
+} from "react-native";
 import { breakpoints, Theme, useTheme } from "../theme";
 import {
 	Breakpoints,
@@ -15,8 +21,8 @@ import {
 } from "../type";
 import { isBreakpoints } from "../utils";
 import { shorthandsFn } from "../shorthands";
-import { StyleFunc, NativeCssFunc, NativeStyle } from "./type";
-import { useReducer, useRef, useState } from "react";
+import { StyleFunc, NativeCssFunc } from "./type";
+import { useReducer, useRef } from "react";
 
 const useBreakpoint = (): number => {
 	const { width } = useWindowDimensions();
@@ -62,7 +68,7 @@ export const useYoshiki = () => {
 	const breakpoint = useBreakpoint();
 	const theme = useTheme();
 	const rerender = useForceRerender();
-	const childStyles = useRef<Record<string, NativeStyle | undefined>>({});
+	const childStyles = useRef<Record<string, ViewStyle | TextStyle | ImageStyle | undefined>>({});
 
 	const css: NativeCssFunc = (cssList, leftOvers) => {
 		// The as any is because we can't be sure the style type is right one.

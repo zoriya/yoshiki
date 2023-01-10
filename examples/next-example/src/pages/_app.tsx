@@ -4,10 +4,8 @@
 //
 
 import { AppProps } from "next/app";
-import { useMemo } from "react";
 import {
 	useYoshiki,
-	createStyleRegistry,
 	useMobileHover,
 	StyleRegistryProvider,
 	Theme,
