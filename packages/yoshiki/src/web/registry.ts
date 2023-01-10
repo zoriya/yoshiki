@@ -36,7 +36,6 @@ export class StyleRegistry {
 				"Warning: Yoshiki was used without a top level StyleRegistry. SSR won't be supported.",
 			);
 		}
-		if (typeof window !== "undefined") this.hydrate();
 	}
 
 	addRule(key: StyleKey, rule: string) {
@@ -93,10 +92,10 @@ export class StyleRegistry {
 			this.cssOutput[key.state][key.breakpoint].push(css);
 		}
 		return Object.entries(this.cssOutput)
-			.map(([state, bp]) =>
-				Object.entries(bp)
-					.map(([breakpoint, css]) => `/* ${state}-${breakpoint} */\n${css.join("\n")}\n`)
-					.join("\n"),
+			.flatMap(([state, bp]) =>
+				Object.entries(bp).flatMap(([breakpoint, css]) =>
+					css.length ? ["", `/* ${state}-${breakpoint} */`, ...css] : [],
+				),
 			)
 			.join("\n");
 	}
@@ -116,19 +115,21 @@ export class StyleRegistry {
 	}
 
 	hydrateStyle(css: string) {
-		const comReg = new RegExp("/\\* (\\w+):(\\w) \\*/");
+		const comReg = new RegExp("/\\* (\\w+)-(\\w+) \\*/");
 		let state: StyleKey["state"] = "normal";
 		let bp: StyleKey["breakpoint"] = "default";
 
 		for (const line of css.split("\n")) {
 			const match = line.match(comReg);
-			if (!match) {
-				this.cssOutput[state][bp].push(line);
+			if (match) {
+				// Not really safe but will break only if the user modifies the css manually.
+				state = match[1] as StyleKey["state"];
+				bp = match[2] as StyleKey["breakpoint"];
 				continue;
 			}
-			// Not really safe but will break only if the user modifies the css manually.
-			state = match[1] as StyleKey["state"];
-			bp = match[2] as StyleKey["breakpoint"];
+
+			if (line.length)
+				this.cssOutput[state][bp].push(line);
 		}
 	}
 }

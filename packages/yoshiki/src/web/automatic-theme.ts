@@ -50,10 +50,9 @@ export const useAutomaticTheme = <T extends Record<string, Child>>(
 	const auto = Object.fromEntries(traverseEntries(theme.light, theme.dark, toAuto)) as ToChild<T>;
 	const rule = `
 body { ${cssVariables.map((x) => `${x.name}: ${x.light}`).join(";")} }
-@media (prefers-color-scheme: dark) {
-	body { ${cssVariables.map((x) => `${x.name}: ${x.dark}`).join(";")} }
-}
-	`;
+@media (prefers-color-scheme: dark) { body { ${cssVariables
+		.map((x) => `${x.name}: ${x.dark}`)
+		.join(";")} } }`;
 	registry.addRule({ type: "user", key, state: "normal", breakpoint: "default" }, rule);
 	return auto;
 };
