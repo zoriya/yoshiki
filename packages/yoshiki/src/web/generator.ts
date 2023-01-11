@@ -126,7 +126,7 @@ const generateAtomicCss = (
 					state,
 					breakpoint: bp as BreakpointKey,
 				},
-				`${stateMapper[state](className)} ${block}`,
+				addBreakpointBlock(bp as BreakpointKey, `${stateMapper[state](className)} ${block}`),
 			);
 			return className;
 		});
