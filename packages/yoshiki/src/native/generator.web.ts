@@ -16,10 +16,10 @@ const rnwPreprocess = (block: Record<string, unknown>) => {
 	return createReactDOMStyle(block);
 };
 
-export const useYoshiki = () => {
+export const useYoshiki = (prefixKey?: string) => {
 	const registry = useStyleRegistry();
 	const theme = useTheme();
-	const [parentPrefix, childPrefix] = useClassId();
+	const [parentPrefix, childPrefix] = useClassId(prefixKey);
 
 	useInsertionEffect(() => {
 		registry.flushToBrowser();

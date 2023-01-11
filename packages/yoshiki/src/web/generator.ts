@@ -207,8 +207,9 @@ export const yoshikiCssToClassNames = (
 	);
 };
 
-export const useClassId = () => {
-	const id = useId().replaceAll(":", "-");
+// TODO: This is extremly hacky and an ID should be unique to a component, not an instance.
+export const useClassId = (prefixKey?: string) => {
+	const id = prefixKey ?? useId().replaceAll(":", "-");
 	return ["ysp" + id, "ysc" + id] as const;
 };
 
@@ -293,10 +294,10 @@ export const generateChildCss = (
 	processStyles(press, "press");
 };
 
-export const useYoshiki = () => {
+export const useYoshiki = (prefixKey?: string) => {
 	const theme = useTheme();
 	const registry = useStyleRegistry();
-	const [parentPrefix, childPrefix] = useClassId();
+	const [parentPrefix, childPrefix] = useClassId(prefixKey);
 
 	useInsertionEffect(() => {
 		registry.flushToBrowser();

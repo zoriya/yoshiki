@@ -66,7 +66,7 @@ const useForceRerender = () => {
 
 type State = EnhancedStyle<ViewStyle | TextStyle | ImageStyle> | undefined;
 
-export const useYoshiki = () => {
+export const useYoshiki = (_?: string) => {
 	const breakpoint = useBreakpoint();
 	const theme = useTheme();
 	const rerender = useForceRerender();
