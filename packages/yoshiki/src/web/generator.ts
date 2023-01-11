@@ -47,8 +47,8 @@ const stateMapper: {
 	hover: (cn) => `:where(body:not(.noHover)) .${cn}:hover`,
 };
 
-const sanitize = (className: unknown) => {
-	const name = typeof className === "string" ? className : JSON.stringify(className);
+export const sanitize = (value: unknown): string => {
+	const name = typeof value === "string" ? value : JSON.stringify(value);
 	if (name === undefined) return "undefined";
 	// Keep - as a _ for minus symbols.
 	return name.replaceAll("-", "_").replaceAll(/[^\w\d_]/g, "");
@@ -120,7 +120,12 @@ const generateAtomicCss = (
 			);
 			if (!block) return [];
 			registry.addRule(
-				{ type: "atomic", key: `${key}:${bpValue}`, state, breakpoint: bp as BreakpointKey },
+				{
+					type: "atomic",
+					key: `${key}:${sanitize(bpValue)}`,
+					state,
+					breakpoint: bp as BreakpointKey,
+				},
 				`${stateMapper[state](className)} ${block}`,
 			);
 			return className;
@@ -131,7 +136,7 @@ const generateAtomicCss = (
 	const block = generateClassBlock({ [key]: value }, preprocessBlock);
 	if (!block) return [];
 	registry.addRule(
-		{ type: "atomic", key: `${key}:${value}`, state, breakpoint: "default" },
+		{ type: "atomic", key: `${key}:${sanitize(value)}`, state, breakpoint: "default" },
 		`${stateMapper[state](className)} ${block}`,
 	);
 	return [className];
@@ -244,6 +249,7 @@ export const generateChildCss = (
 	) => {
 		if (!list) return;
 		for (let [name, style] of Object.entries(list)) {
+			name = sanitize(name);
 			if (!style || name === "self") continue;
 			if (preprocess) style = preprocess(style);
 			const parentName = parentPrefix + name;

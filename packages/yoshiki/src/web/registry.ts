@@ -89,8 +89,7 @@ export class StyleRegistry {
 						keys.push(...cssEntries.map((x) => x[0]));
 						return cssEntries.length
 							? ["", `/* ${type[0]}-${state}-${breakpoint} */`, ...cssEntries.map((x) => x[1])]
-							: //
-							  [];
+							: [];
 					}),
 				),
 			)

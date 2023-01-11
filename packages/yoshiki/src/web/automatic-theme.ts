@@ -4,6 +4,7 @@
 //
 
 import { useStyleRegistry } from "./registry";
+import { sanitize } from "./generator";
 
 type Child = string | number | { [key: string]: Child };
 type ToChild<T> = { [key in keyof T]: T[key] extends object ? ToChild<T[key]> : string };
@@ -25,6 +26,8 @@ export const useAutomaticTheme = <T extends Record<string, Child>>(
 ): ToChild<T> => {
 	const registry = useStyleRegistry();
 	const cssVariables: { name: string; light: string | number; dark: string | number }[] = [];
+
+	key = sanitize(key);
 
 	const toAuto = (
 		name: string,
