@@ -27,7 +27,7 @@ export class StyleRegistry {
 		StyleKey["state"],
 		Record<StyleKey["breakpoint"], Record<StyleKey["type"], Record<string, string>>>
 	> = Object.fromEntries(
-		["normal", "hover", "focus", "press"].map((x) => [
+		["normal", "fover", "hover", "focus", "press"].map((x) => [
 			x,
 			Object.fromEntries(
 				Object.keys({ default: 0, ...breakpoints }).map((bp) => [

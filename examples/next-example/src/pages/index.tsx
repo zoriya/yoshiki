@@ -100,13 +100,16 @@ export default function Home(props: Stylable) {
 					</a>
 				</div>
 				<div
+					tabIndex={0}
 					{...css({
-						hover: {
-							self: { background: { xs: "red", sm: "blue", md: "green" } },
+						fover: {
+							link: {
+								color: { xs: "blue", md: "black" },
+							},
 						},
 					})}
 				>
-					<a href="https://github.com/vercel/next.js/tree/canary/examples">
+					<a href="https://github.com/vercel/next.js/tree/canary/examples" {...css("link")}>
 						<h2>Examples &rarr;</h2>
 						<p>Discover and deploy boilerplate example Next.js projects.</p>
 					</a>

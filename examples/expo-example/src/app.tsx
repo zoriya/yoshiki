@@ -54,6 +54,11 @@ const BoxWithoutProps = (props: Stylable) => {
 								color: "green",
 							},
 						},
+						fover: {
+							text: {
+								textDecorationLine: "underline",
+							}
+						}
 					},
 					md({
 						shadowOpacity: 0.5,

@@ -86,12 +86,13 @@ export const useYoshiki = (_?: string) => {
 		};
 
 		if (hasState<State>(css)) {
-			const { hover, focus, press, ...inline } = css;
+			const { hover, focus, fover, press, ...inline } = css;
 			const { onPressIn, onPressOut, onHoverIn, onHoverOut, onFocus, onBlur } =
 				leftOvers as PressableProps;
 			const ret: StyleFunc<unknown> = ({ hovered, focused, pressed }) => {
 				childStyles.current = {};
 				assignChilds(childStyles.current, child);
+				if (focused || hovered) assignChilds(childStyles.current, fover);
 				if (hovered) assignChilds(childStyles.current, hover);
 				if (focused) assignChilds(childStyles.current, focus);
 				if (pressed) assignChilds(childStyles.current, press);
@@ -99,6 +100,7 @@ export const useYoshiki = (_?: string) => {
 				return [
 					processStyle(inline),
 					processStyle(child?.self ?? {}),
+					(focused || hovered) && processStyle(fover?.self ?? {}),
 					hovered && processStyle(hover?.self ?? {}),
 					focused && processStyle(focus?.self ?? {}),
 					pressed && processStyle(press?.self ?? {}),

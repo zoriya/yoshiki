@@ -17,6 +17,8 @@ export type Breakpoints<Property> = {
 export type WithState<Style> = {
 	hover: { self?: Style; [key: string]: Style | undefined };
 	focus: { self?: Style; [key: string]: Style | undefined };
+	// A mix of hover and focus
+	fover: { self?: Style; [key: string]: Style | undefined };
 	press: { self?: Style; [key: string]: Style | undefined };
 };
 export type WithChild<Style> = {
@@ -27,7 +29,7 @@ export const hasState = <Style = Record<string, unknown>>(
 	obj: unknown,
 ): obj is WithState<Style> => {
 	if (!obj || typeof obj !== "object") return false;
-	return "hover" in obj || "focus" in obj || "press" in obj;
+	return "hover" in obj || "focus" in obj || "press" in obj || "fover" in obj;
 };
 
 const isReadonlyArray = (array: unknown): array is ReadonlyArray<unknown> => Array.isArray(array);

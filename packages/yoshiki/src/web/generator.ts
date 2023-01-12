@@ -35,16 +35,26 @@ export const md = (value: ForcedBreakpointStyle) => forceBreakpoint(value, "md")
 export const lg = (value: ForcedBreakpointStyle) => forceBreakpoint(value, "lg");
 export const xl = (value: ForcedBreakpointStyle) => forceBreakpoint(value, "xl");
 
+const appendChild = (cn: string, childSelect?: string) =>
+	childSelect ? `${cn} .${childSelect}` : cn;
 const stateMapper: {
-	[key in keyof (WithState<undefined> & { normal: undefined })]: (cn: string) => string;
+	[key in keyof (WithState<undefined> & { normal: undefined })]: (
+		cn: string,
+		childSelect?: string,
+	) => string;
 } = {
-	normal: (cn) => `.${cn}`,
-	press: (cn) => `.${cn}:active`,
+	normal: (cn, child) => appendChild(`.${cn}`, child),
+	press: (cn, child) => appendChild(`.${cn}:active`, child),
 	// :focus-visible is a pseudo-selector that only enables the focus ring when using the keyboard.
-	focus: (cn) => `.${cn}:focus-visible`,
+	focus: (cn, child) => appendChild(`.${cn}:focus-visible`, child),
 	// The body.noHover will be set when the users uses a touch screen instead of a mouse. This is used to only enable hover with the mouse.
 	// The where is used to decrease the rule specificity (make it the same as juste .cn:hover)
-	hover: (cn) => `:where(body:not(.noHover)) .${cn}:hover`,
+	hover: (cn, child) => appendChild(`:where(body:not(.noHover)) .${cn}:hover`, child),
+	fover: (cn, child) =>
+		`${appendChild(stateMapper["hover"](cn), child)}, ${appendChild(
+			stateMapper["focus"](cn),
+			child,
+		)}`,
 };
 
 export const sanitize = (value: unknown): string => {
@@ -65,7 +75,7 @@ const generateClassBlock = (
 ): string | undefined => {
 	preprocessBlock ??= (id) => id;
 	const block = Object.entries(prefix(preprocessBlock(style)))
-		.filter(([_, value]) => value !== undefined)
+		.filter(([, value]) => value !== undefined)
 		.flatMap(([nKey, nValue]) => {
 			const cssKey = nKey.replace(/[A-Z]/g, "-$&").toLowerCase();
 			return Array.isArray(nValue)
@@ -181,7 +191,7 @@ export const yoshikiCssToClassNames = (
 		preprocessBlock?: PreprocessBlockFunction;
 	},
 ) => {
-	const { child, hover, focus, press, ...inline } = css;
+	const { child, hover, focus, fover, press, ...inline } = css;
 
 	const processStyles = (
 		inlineStyle?: Record<string, unknown>,
@@ -202,10 +212,11 @@ export const yoshikiCssToClassNames = (
 	return dedupProperties(
 		processStyles(inline),
 		processStyles(child?.self),
+		processStyles(fover?.self, "fover"),
 		processStyles(hover?.self, "hover"),
 		processStyles(focus?.self, "focus"),
 		processStyles(press?.self, "press"),
-		Object.keys({ ...hover, ...focus, ...press })
+		Object.keys({ ...hover, ...focus, ...press, ...fover })
 			.filter((x) => x !== "self")
 			.map((x) => parentPrefix + x),
 		classNames,
@@ -214,7 +225,7 @@ export const yoshikiCssToClassNames = (
 
 // TODO: This is extremly hacky and an ID should be unique to a component, not an instance.
 export const useClassId = (prefixKey?: string) => {
-	const id = prefixKey ?? useId().replaceAll(":", "-");
+	const id = prefixKey ? `-${prefixKey}-` : useId().replaceAll(":", "-");
 	return ["ysp" + id, "ysc" + id] as const;
 };
 
@@ -224,6 +235,7 @@ export const generateChildCss = (
 		focus,
 		press,
 		child,
+		fover,
 	}: Partial<WithState<Record<string, unknown>> & WithChild<Record<string, unknown>>>,
 	{
 		parentPrefix,
@@ -285,7 +297,7 @@ export const generateChildCss = (
 			for (const [breakpoint, breakedStyle] of Object.entries(splitStyle)) {
 				const block = generateClassBlock(breakedStyle, preprocessBlock);
 				if (!block) continue;
-				const cssClass = `${stateMapper[state](parentName)} .${className} ${block}`;
+				const cssClass = `${stateMapper[state](parentName, className)} ${block}`;
 				registry.addRule(
 					{ type: "general", key: className, breakpoint: breakpoint as BreakpointKey, state },
 					addBreakpointBlock(breakpoint as BreakpointKey, cssClass),
@@ -298,6 +310,7 @@ export const generateChildCss = (
 	processStyles(hover, "hover");
 	processStyles(focus, "focus");
 	processStyles(press, "press");
+	processStyles(fover, "fover");
 };
 
 export const useYoshiki = (prefixKey?: string) => {
@@ -311,7 +324,7 @@ export const useYoshiki = (prefixKey?: string) => {
 
 	return {
 		css: <Leftover>(
-			cssList: StyleList<CssObject | string> & Partial<WithState<CssObject>> & WithChild<CssObject>,
+			cssList: StyleList<CssObject | string> & Partial<WithState<CssObject> & WithChild<CssObject>>,
 			leftOverProps?: Leftover & { className?: string },
 		): { className: string } & Omit<Leftover, "className"> => {
 			const [css, parentKeys] = processStyleListWithoutChild(cssList);
