@@ -100,6 +100,7 @@ const P = (props: TextProps) => {
 function App() {
 	const { css } = useYoshiki();
 	const test: ImageProps = {};
+	const funcStyle = css({ focus: { self: { bg: "red" } } });
 
 	return (
 		<View
@@ -114,7 +115,7 @@ function App() {
 			<Text>Open up App.tsx to start working on your app!</Text>
 			<CustomBox color="black" {...css({ borderColor: "red", borderWidth: px(3) })} />
 			<BoxWithoutProps {...css({ borderColor: "red", borderWidth: px(3) })} />
-			<Pressable android_ripple={{ color: "black" }}>
+			<Pressable android_ripple={{ color: "black" }} {...css({ bg: "black" }, funcStyle)}>
 				<P
 					accessibilityLabel="toto"
 					{...css([undefined, false, { color: "red" }, [{ color: "green" }, false]])}

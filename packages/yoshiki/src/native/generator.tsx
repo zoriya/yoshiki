@@ -6,6 +6,7 @@
 import {
 	ImageStyle,
 	PressableProps,
+	PressableStateCallbackType,
 	TextStyle,
 	useWindowDimensions,
 	ViewStyle,
@@ -87,8 +88,8 @@ export const useYoshiki = (_?: string) => {
 
 		if (hasState<State>(css)) {
 			const { hover, focus, fover, press, ...inline } = css;
-			const { onPressIn, onPressOut, onHoverIn, onHoverOut, onFocus, onBlur } =
-				leftOvers as PressableProps;
+			const { onPressIn, onPressOut, onHoverIn, onHoverOut, onFocus, onBlur } = (leftOvers ??
+				{}) as PressableProps;
 			const ret: StyleFunc<unknown> = ({ hovered, focused, pressed }) => {
 				childStyles.current = {};
 				assignChilds(childStyles.current, child);
@@ -142,9 +143,14 @@ export const useYoshiki = (_?: string) => {
 				},
 			} satisfies PressableProps;
 		} else {
+			const ret = [processStyle(css), processStyle(child?.self ?? {})];
+			const loStyle = leftOvers?.style;
 			return {
 				...leftOvers,
-				style: [processStyle(css), processStyle(child?.self ?? {}), leftOvers?.style],
+				style:
+					typeof loStyle === "function"
+						? (state: PressableStateCallbackType) => [...ret, loStyle(state)]
+						: [...ret, loStyle],
 			} as any;
 		}
 	};
