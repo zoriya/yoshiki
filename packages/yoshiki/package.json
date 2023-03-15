@@ -1,17 +1,17 @@
 {
 	"name": "yoshiki",
-	"version": "1.2.1",
-	"author": "Zoe Roux <zoe.roux@sdg.moe> (https://github.com/AnonymusRaccoon)",
+	"version": "1.2.2",
+	"author": "Zoe Roux <zoe.roux@sdg.moe> (https://github.com/zoriya)",
 	"license": "MIT",
 	"keywords": [
 		"react",
 		"react-native",
 		"css-in-js"
 	],
-	"repository": "https://github.com/AnonymusRaccoon/yoshiki",
-	"homepage": "https://github.com/AnonymusRaccoon/yoshiki",
+	"repository": "https://github.com/zoriya/yoshiki",
+	"homepage": "https://github.com/zoriya/yoshiki",
 	"bugs": {
-		"url": "https://github.com/AnonymusRaccoon/yoshiki/issues"
+		"url": "https://github.com/zoriya/yoshiki/issues"
 	},
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -25,7 +25,6 @@
 	"dependencies": {
 		"@types/node": "18.x.x",
 		"@types/react": "18.x.x",
-		"@types/react-native": ">= 0.70.0",
 		"inline-style-prefixer": "^7.0.0"
 	},
 	"peerDependencies": {
@@ -45,6 +44,7 @@
 		"@types/inline-style-prefixer": "^5.0.0",
 		"react": "18.x.x",
 		"react-dom": "^18.2.0",
+		"react-native": "^0.71.1",
 		"react-native-web": "^0.18.10",
 		"typescript": ">= 4.8.4"
 	}
