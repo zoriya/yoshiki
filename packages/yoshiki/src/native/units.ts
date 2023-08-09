@@ -10,7 +10,7 @@ export const px =
 		? (value: number): number => `${value}px` as unknown as number
 		: (value: number): number => value;
 
-export const percent = (value: number) => `${value}%`;
+export const percent = (value: number) => `${value}%` as const;
 
 export const em =
 	Platform.OS === "web"
