@@ -19,6 +19,7 @@ const nextConfig = {
 		config.resolve.alias["react"] = path.resolve(__dirname, ".", "node_modules", "react");
 		return config;
 	},
+	transpilePackages: ["yoshiki"],
 };
 
 module.exports = nextConfig;

@@ -3,4 +3,4 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-export * from "./dist/web";
+export * from "./src/web";

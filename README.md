@@ -23,6 +23,21 @@ or
 
 `npm install --save yoshiki`
 
+As most react-native packages, you need to transpile this package. This will be done automatically with React native or expo
+but if you use this elsewhere you need to tweek your settings to automatically transpile it.
+
+For example, in next.js, you need to add the `transpilePackages` line on `next.config.js` like so:
+
+```js
+const nextConfig = {
+	reactStrictMode: true,
+	swcMinify: true,
+	transpilePackages: ["yoshiki"],
+};
+
+module.exports = nextConfig;
+```
+
 ## Usage
 
 ```tsx
