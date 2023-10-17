@@ -79,19 +79,3 @@ export const assignChilds = <Style>(
 	}
 	return target;
 };
-
-export const ysMap = <Property>(
-	value: YoshikiStyle<Property>,
-	f: (p: Property) => Property,
-): YoshikiStyle<Property> => {
-	if (typeof value === "function") {
-		// @ts-ignore too hard to type right
-		return (theme) => ysMap(value(theme), f);
-	}
-	if (isBreakpoints(value)) {
-		return Object.fromEntries(
-			Object.entries(value).map(([bp, bpValue]) => [bp, ysMap(bpValue, f)]),
-		);
-	}
-	return f(value);
-};

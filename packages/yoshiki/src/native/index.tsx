@@ -34,3 +34,4 @@ export const ThemeProvider = ({ theme, children }: { theme: Theme; children?: Re
 };
 
 export * from "../type";
+export * from "../utils";

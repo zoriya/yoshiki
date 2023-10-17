@@ -27,3 +27,4 @@ export const ThemeProvider = ({ theme, children }: { theme: Theme; children?: Re
 	createElement(ThemeContext.Provider, { value: theme }, [children]);
 
 export * from "../type";
+export * from "../utils";
