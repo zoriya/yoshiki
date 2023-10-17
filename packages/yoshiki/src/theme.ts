@@ -18,7 +18,7 @@ export const breakpoints = {
 
 // A theme provider can't be created here since a Context's Provider is not callable and we want to
 // support both react and react-native jsx modes. This is why the ThemeContext is exported.
-export const ThemeContext = createContext<Theme>({});
+export const ThemeContext = createContext<Theme>(null!);
 
 export const useTheme = (): Theme => useContext(ThemeContext);
 

@@ -1,6 +1,6 @@
 {
 	"name": "yoshiki",
-	"version": "1.2.4",
+	"version": "1.2.7",
 	"author": "Zoe Roux <zoe.roux@sdg.moe> (https://github.com/zoriya)",
 	"license": "MIT",
 	"keywords": [
@@ -25,6 +25,7 @@
 	"dependencies": {
 		"@types/node": "18.x.x",
 		"@types/react": "18.x.x",
+		"@types/inline-style-prefixer": "^5.0.0",
 		"inline-style-prefixer": "^7.0.0"
 	},
 	"peerDependencies": {
@@ -41,7 +42,6 @@
 		}
 	},
 	"devDependencies": {
-		"@types/inline-style-prefixer": "^5.0.0",
 		"react": "18.x.x",
 		"react-dom": "^18.2.0",
 		"react-native": "^0.71.1",
