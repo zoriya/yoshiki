@@ -25,3 +25,5 @@ export { useAutomaticTheme } from "./automatic-theme";
 
 export const ThemeProvider = ({ theme, children }: { theme: Theme; children?: ReactNode }) =>
 	createElement(ThemeContext.Provider, { value: theme }, [children]);
+
+export * from "../type";

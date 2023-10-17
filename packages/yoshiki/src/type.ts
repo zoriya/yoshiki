@@ -4,6 +4,7 @@
 //
 
 import { breakpoints, Theme } from "./theme";
+import { isBreakpoints } from "./utils";
 
 export type YoshikiStyle<Property> =
 	| Property
@@ -77,4 +78,20 @@ export const assignChilds = <Style>(
 		else target[entry] = { ...target[entry], ...style[entry] } as any;
 	}
 	return target;
+};
+
+export const ysMap = <Property>(
+	value: YoshikiStyle<Property>,
+	f: (p: Property) => Property,
+): YoshikiStyle<Property> => {
+	if (typeof value === "function") {
+		// @ts-ignore too hard to type right
+		return (theme) => ysMap(value(theme), f);
+	}
+	if (isBreakpoints(value)) {
+		return Object.fromEntries(
+			Object.entries(value).map(([bp, bpValue]) => [bp, ysMap(bpValue, f)]),
+		);
+	}
+	return f(value);
 };

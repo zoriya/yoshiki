@@ -5,7 +5,7 @@
 
 import Head from "next/head";
 import Image from "next/image";
-import { useYoshiki, Stylable, md } from "yoshiki/web";
+import { useYoshiki, Stylable, md, ysMap } from "yoshiki/web";
 import { ReactNode } from "react";
 
 const Box = ({ children, ...props }: { children?: ReactNode } & Stylable) => {
@@ -69,7 +69,7 @@ export default function Home(props: Stylable) {
 						},
 						hover: {
 							text: {
-								color: { xs: "blue", md: "black" },
+								color: ysMap({ xs: "lue", md: "lack" }, (x) => `b${x}`),
 							},
 						},
 						focus: {

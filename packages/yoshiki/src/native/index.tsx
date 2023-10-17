@@ -32,3 +32,5 @@ export { sm, md, lg, xl } from "./type";
 export const ThemeProvider = ({ theme, children }: { theme: Theme; children?: ReactNode }) => {
 	return <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>;
 };
+
+export * from "../type";

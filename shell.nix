@@ -4,5 +4,6 @@
       nodejs-16_x
       nodePackages.yarn
       nodePackages.expo-cli
+      nodePackages.eslint_d
     ];
   }
