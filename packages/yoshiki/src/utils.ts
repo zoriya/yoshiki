@@ -4,7 +4,7 @@
 //
 
 import { breakpoints } from "./theme";
-import { Breakpoints, YoshikiStyle } from "./type";
+import { Breakpoints, processStyleList, StyleList, YoshikiStyle } from "./type";
 
 export const isBreakpoints = <T>(value: unknown): value is Breakpoints<T> => {
 	if (typeof value !== "object" || !value) return false;
@@ -41,4 +41,35 @@ export const ysMap = <Property, Mapped>(
 		);
 	}
 	return f(value);
+};
+
+/**
+ * Extract css classes from a "yoshiki/native"'s css function and return it as a vanila css props
+ * that can be used directly in a <div>' props.
+ *
+ * This allows things like
+ *
+ * @example
+ *
+ * ```typescript
+ * const First = () => {
+ * 	const { css } = useYoshiki();
+ * 	return (
+ * 		<View {...css({ pX: px(12) })}>
+ * 			<p {...css({})}>Test</p>
+ * 		</View>
+ * 	);
+ * };
+ *
+ * const Second = (props) => {
+ * 	return <p {...nativeStyleToCss(props)}>Test</p>;
+ * };
+ * ```
+ */
+export const nativeStyleToCss = <Style>(props: {
+	style?: StyleList<{ $$css?: true; yoshiki?: string } | Style>;
+}): { className?: string } => {
+	const inline = processStyleList(props.style);
+	const className = "$$css" in inline && inline.$$css ? inline.yoshiki : undefined;
+	return { ...props, className };
 };
