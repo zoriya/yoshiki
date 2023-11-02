@@ -66,10 +66,13 @@ export const ysMap = <Property, Mapped>(
  * };
  * ```
  */
-export const nativeStyleToCss = <Style>(props: {
+export const nativeStyleToCss = <Style>({
+	style,
+	...props
+}: {
 	style?: StyleList<{ $$css?: true; yoshiki?: string } | Style>;
-}): { className?: string } => {
-	const inline = processStyleList(props.style);
+}) => {
+	const inline = processStyleList(style);
 	const className = "$$css" in inline && inline.$$css ? inline.yoshiki : undefined;
 	return { ...props, className };
 };
