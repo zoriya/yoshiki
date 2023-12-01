@@ -55,6 +55,8 @@ export class StyleRegistry {
 		if (!this.styleElement) {
 			this.hydrate();
 		}
+		// Dont recompute css if no new rules was added.
+		if (!this.rules.length) return;
 
 		const [css] = this.flushToStyleString();
 

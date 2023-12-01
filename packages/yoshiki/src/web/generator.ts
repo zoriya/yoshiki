@@ -14,7 +14,7 @@ import {
 	processStyleListWithoutChild,
 	WithChild,
 } from "../type";
-import { forceBreakpoint, isBreakpoints } from "../utils";
+import { forceBreakpoint, isBreakpoints, useForceRerender } from "../utils";
 import { StyleRegistry, useStyleRegistry } from "./registry";
 import { shorthandsFn } from "../shorthands";
 

@@ -3,8 +3,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
+import { useReducer } from "react";
 import { breakpoints } from "./theme";
 import { Breakpoints, processStyleList, StyleList, YoshikiStyle } from "./type";
+
+export const useForceRerender = () => {
+	return useReducer((x) => x + 1, 0)[1];
+};
 
 export const isBreakpoints = <T>(value: unknown): value is Breakpoints<T> => {
 	if (typeof value !== "object" || !value) return false;

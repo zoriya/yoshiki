@@ -23,7 +23,7 @@ export const useYoshiki = (prefixKey?: string) => {
 
 	useInsertionEffect(() => {
 		registry.flushToBrowser();
-	}, [registry]);
+	});
 
 	const css: NativeCssFunc = (cssList, leftOvers) => {
 		const [css, parentKeys] = processStyleListWithoutChild(cssList);

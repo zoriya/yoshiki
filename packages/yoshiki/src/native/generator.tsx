@@ -20,10 +20,10 @@ import {
 	processStyleListWithChild,
 	assignChilds,
 } from "../type";
-import { isBreakpoints } from "../utils";
+import { isBreakpoints, useForceRerender } from "../utils";
 import { shorthandsFn } from "../shorthands";
 import { StyleFunc, NativeCssFunc, EnhancedStyle } from "./type";
-import { useReducer, useRef } from "react";
+import { useRef } from "react";
 
 const useBreakpoint = (): number => {
 	const { width } = useWindowDimensions();
@@ -59,10 +59,6 @@ const propertyMapper = (
 		return [];
 	}
 	return [[key, value]];
-};
-
-const useForceRerender = () => {
-	return useReducer((x) => x + 1, 0)[1];
 };
 
 type State = EnhancedStyle<ViewStyle | TextStyle | ImageStyle> | undefined;
