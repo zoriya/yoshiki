@@ -320,7 +320,7 @@ export const useYoshiki = (prefixKey?: string) => {
 
 	useInsertionEffect(() => {
 		registry.flushToBrowser();
-	}, [registry]);
+	});
 
 	return {
 		css: <Leftover>(

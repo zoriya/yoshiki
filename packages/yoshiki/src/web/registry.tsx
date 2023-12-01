@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import { createContext, createElement, ReactNode, useContext } from "react";
+import { createContext, ReactNode, useContext } from "react";
 import { breakpoints } from "../theme";
 import { WithState } from "../type";
 
@@ -67,11 +67,7 @@ export class StyleRegistry {
 
 	flushToComponent() {
 		const [css, keys] = this.flushToStyleString();
-		// JSX can't be used since the compiler is set to react-native mode.
-		return createElement("style", {
-			"data-yoshiki": keys,
-			children: css,
-		});
+		return <style data-yoshiki={keys}>{css}</style>;
 	}
 
 	flushToStyleString(): [string, string] {
@@ -150,7 +146,7 @@ export const StyleRegistryProvider = ({
 }: {
 	registry: StyleRegistry;
 	children: ReactNode;
-}) => createElement(RegistryContext.Provider, { value: registry }, [children]);
+}) => <RegistryContext.Provider value={registry}>{children}</RegistryContext.Provider>;
 
 export const useStyleRegistry = () => useContext(RegistryContext) || new StyleRegistry(true);
 
